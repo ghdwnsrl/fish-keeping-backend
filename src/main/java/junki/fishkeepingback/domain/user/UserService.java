@@ -13,8 +13,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public void join(JoinReq joinReq) {
-        String encodedPw = passwordEncoder.encode(joinReq.getPassword());
-        User user = new User(joinReq.getUsername(), encodedPw);
+        String encodedPw = passwordEncoder.encode(joinReq.password());
+        User user = new User(joinReq.username(), encodedPw);
         userRepository.save(user);
     }
 }
