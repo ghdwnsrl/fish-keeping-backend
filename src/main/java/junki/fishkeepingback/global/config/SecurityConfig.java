@@ -1,5 +1,7 @@
 package junki.fishkeepingback.global.config;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -10,9 +12,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -45,12 +50,28 @@ class SecurityConfig {
                     config.setMaxAge(3600L);
                     return config;
                 }))
+                .logout(logout ->
+                        logout
+                                .logoutUrl("/api/logout")
+                                .logoutSuccessHandler(logoutSuccessHandler())
+                )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/login", "/api/join").permitAll()
                         .anyRequest().authenticated()
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return new SimpleUrlLogoutSuccessHandler() {
+            @Override
+            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) {
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
+        };
     }
 
     @Bean
