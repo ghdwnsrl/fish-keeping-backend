@@ -27,7 +27,7 @@ public class UserManagerController {
     @PostMapping("/api/login")
     public ResponseEntity<Void> login(@RequestBody LoginReq loginReq, HttpServletRequest request, HttpServletResponse response) {
         Authentication authenticationRequest =
-                UsernamePasswordAuthenticationToken.unauthenticated(loginReq.getUsername(), loginReq.getPassword());
+                UsernamePasswordAuthenticationToken.unauthenticated(loginReq.username(), loginReq.password());
         Authentication authenticationResponse =
                 this.authenticationManager.authenticate(authenticationRequest);
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
@@ -40,6 +40,12 @@ public class UserManagerController {
     @PostMapping("/api/join")
     public ResponseEntity<Void> join(@RequestBody JoinReq joinReq) {
         userService.join(joinReq);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/test")
+    public ResponseEntity<Void> test(HttpServletRequest request) {
+        log.info("test session {}", request.getSession().toString());
         return ResponseEntity.ok().build();
     }
 }
