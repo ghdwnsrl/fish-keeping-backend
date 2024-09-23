@@ -10,6 +10,7 @@ public record PostReq(@NotBlank String title,
         return Post.builder()
                 .title(title)
                 .content(content)
+                .views(0)
                 .build();
     }
 }
