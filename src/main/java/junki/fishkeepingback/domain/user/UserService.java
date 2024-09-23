@@ -1,5 +1,6 @@
 package junki.fishkeepingback.domain.user;
 
+import junki.fishkeepingback.domain.user.dto.JoinReq;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;

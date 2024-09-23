@@ -1,7 +1,10 @@
-package junki.fishkeepingback.domain.user;
+package junki.fishkeepingback.global;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import junki.fishkeepingback.domain.user.UserService;
+import junki.fishkeepingback.domain.user.dto.JoinReq;
+import junki.fishkeepingback.domain.user.dto.LoginReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
