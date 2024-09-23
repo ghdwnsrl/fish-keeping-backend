@@ -2,6 +2,7 @@ package junki.fishkeepingback.domain.user;
 
 import jakarta.persistence.*;
 import junki.fishkeepingback.domain.post.Post;
+import junki.fishkeepingback.global.config.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor
 @Getter
-public class User {
+public class User extends BaseEntity {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
