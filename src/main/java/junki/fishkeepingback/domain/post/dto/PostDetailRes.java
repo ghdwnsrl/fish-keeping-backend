@@ -5,14 +5,16 @@ import junki.fishkeepingback.domain.post.Post;
 
 import java.time.LocalDateTime;
 
-public record PostRes(
+public record PostDetailRes(
         Long id,
         String title,
+        String content,
         String username,
         Integer views,
-        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) {
-    public PostRes(Post post) {
-        this(post.getId(), post.getTitle(),
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt
+) {
+    public PostDetailRes(Post post) {
+        this(post.getId(), post.getTitle(), post.getContent(),
                 post.getUser().getUsername(), post.getViews(), post.getCreatedAt());
     }
 }

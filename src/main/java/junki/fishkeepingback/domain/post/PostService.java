@@ -1,6 +1,8 @@
 package junki.fishkeepingback.domain.post;
 
+import junki.fishkeepingback.domain.comment.exeception.PostNotFound;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
+import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.user.User;
@@ -36,5 +38,12 @@ public class PostService {
     public Page<PostRes> getPosts(PageRequest pageRequest) {
         return postRepository.findAll(pageRequest)
                 .map(PostRes::new);
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailRes get(Long postId) {
+        return this.findById(postId)
+                .map(PostDetailRes::new)
+                .orElseThrow(() -> new PostNotFound("게시글을 찾을 수 없습니다."));
     }
 }

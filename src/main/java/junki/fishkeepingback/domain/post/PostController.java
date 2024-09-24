@@ -1,6 +1,7 @@
 package junki.fishkeepingback.domain.post;
 
 import jakarta.validation.Valid;
+import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,13 @@ public class PostController {
         Long result = postService.create(post, username);
         return ResponseEntity
                 .ok(result);
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDetailRes> getPost(@PathVariable Long postId) {
+        PostDetailRes postRes = postService.get(postId);
+        log.info(postRes.toString());
+        return ResponseEntity
+                .ok(postRes);
     }
 }
