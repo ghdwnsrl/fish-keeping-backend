@@ -3,6 +3,8 @@ package junki.fishkeepingback.domain.comment;
 import jakarta.validation.Valid;
 import junki.fishkeepingback.domain.comment.dto.CommentReq;
 import junki.fishkeepingback.domain.comment.dto.CommentRes;
+import junki.fishkeepingback.domain.post.Post;
+import junki.fishkeepingback.domain.post.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,22 +15,23 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments")
+@RequestMapping("/api")
 public class CommentController {
 
     private final CommentService commentService;
+    private final PostService postService;
 
-    @GetMapping
+    @GetMapping("/comments")
     public Page<CommentRes> getComments(
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo) {
         PageRequest pageRequest = PageRequest.of(pageNo, 5);
         return commentService.getCommentList(pageRequest);
     }
 
-    @PostMapping
-    public ResponseEntity<Void> create(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody CommentReq commentReq) {
-        commentService.create(userDetails.getUsername(), commentReq);
-
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<Void> create(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody CommentReq commentReq) {
+        Post post = postService.findById(postId);
+        commentService.create(userDetails.getUsername(), post, commentReq);
         return ResponseEntity.ok().build();
     }
 }
