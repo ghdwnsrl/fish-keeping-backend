@@ -1,5 +1,7 @@
 package junki.fishkeepingback.domain.post;
 
+import junki.fishkeepingback.domain.comment.CommentService;
+import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import junki.fishkeepingback.domain.comment.exeception.PostNotFound;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
@@ -13,13 +15,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
+    private final CommentService commentService;
 
     @Transactional
     public Long create(PostReq postReq, String username) {
@@ -30,8 +33,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Post> findById(Long postId) {
-        return postRepository.findById(postId);
+    public Post findById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFound("존재하지 않는 게시글입니다."));
     }
 
     @Transactional(readOnly = true)
@@ -42,8 +46,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDetailRes get(Long postId) {
-        return this.findById(postId)
-                .map(PostDetailRes::new)
-                .orElseThrow(() -> new PostNotFound("게시글을 찾을 수 없습니다."));
+        List<CommentRes> comments = commentService.findByPostId(postId);
+        Post post = findById(postId);
+        return new PostDetailRes(post, comments);
     }
 }
