@@ -23,9 +23,12 @@ public class PostController {
 
     @GetMapping
     public Page<PostRes> getPosts(
-            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo) {
+            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String archiveName
+            ) {
         PageRequest pageRequest = PageRequest.of(pageNo, 10);
-        return postService.getPosts(pageRequest);
+        return postService.getPosts(pageRequest, username, archiveName);
     }
 
     @PostMapping

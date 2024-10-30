@@ -9,10 +9,6 @@ public record PostRes(
         Long id,
         String title,
         String username,
+        Integer commentCount,
         Integer views,
-        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) {
-    public PostRes(Post post) {
-        this(post.getId(), post.getTitle(),
-                post.getUser().getUsername(), post.getViews(), post.getCreatedAt());
-    }
-}
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) { }
