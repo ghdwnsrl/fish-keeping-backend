@@ -45,10 +45,4 @@ public class UserManagerController {
         userService.join(joinReq);
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/api/test")
-    public ResponseEntity<Void> test(HttpServletRequest request) {
-        log.info("test session {}", request.getSession().toString());
-        return ResponseEntity.ok().build();
-    }
 }
