@@ -33,9 +33,15 @@ public class Archive extends BaseEntity {
     @OneToMany(mappedBy = "archive")
     private List<Post> posts;
 
+    public Archive(String name, User user) {
+        this.name = name;
+        this.user = user;
+    }
+
     @Builder
-    public Archive(Long id, String name) {
+    public Archive(Long id, String name, User user) {
         this.id = id;
         this.name = name;
+        this.user = user;
     }
 }

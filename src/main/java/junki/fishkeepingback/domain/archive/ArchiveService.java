@@ -3,6 +3,7 @@ package junki.fishkeepingback.domain.archive;
 import junki.fishkeepingback.domain.archive.dao.ArchiveRepository;
 import junki.fishkeepingback.domain.archive.dto.ArchiveReq;
 import junki.fishkeepingback.domain.archive.dto.ArchiveRes;
+import junki.fishkeepingback.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +23,11 @@ public class ArchiveService {
     }
 
     public List<ArchiveRes> findByUsername(String username) {
-        return archiveRepository.findByUserUsername(username)
-                .stream().map(ArchiveRes::new)
-                .toList();
+        return archiveRepository.findByUsername(username);
     }
 
-    public Archive findByArchiveName(String archiveName) {
+    public Archive findByArchiveName(String archiveName, User user) {
         return archiveRepository.findByName(archiveName)
-                .orElseGet(Archive::new);
+                .orElseGet(() -> new Archive(archiveName, user));
     }
 }

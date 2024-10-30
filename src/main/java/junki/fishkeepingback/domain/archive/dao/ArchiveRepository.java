@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ArchiveRepository extends JpaRepository<Archive, Long> {
-    List<Archive> findByUserUsername(String username);
-
+public interface ArchiveRepository extends JpaRepository<Archive, Long>, CustomArchiveRepository {
     Optional<Archive> findByName(String name);
 }

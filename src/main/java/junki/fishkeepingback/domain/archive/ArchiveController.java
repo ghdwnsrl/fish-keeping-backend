@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/tags")
+@RequestMapping("/api/archives")
 public class ArchiveController {
 
     private final ArchiveService archiveService;
@@ -26,8 +26,7 @@ public class ArchiveController {
     }
 
     @GetMapping
-    public ResponseEntity<Result> getAll(@AuthenticationPrincipal UserDetails userDetails) {
-        String username = userDetails.getUsername();
+    public ResponseEntity<Result> getAll(@RequestParam String username) {
         List<ArchiveRes> tags = archiveService.findByUsername(username);
         Result result = Result.builder()
                 .status(HttpStatus.OK.value())
