@@ -23,6 +23,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +45,7 @@ class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                    config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
@@ -58,6 +59,7 @@ class SecurityConfig {
                 )
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/login", "/api/join").permitAll()
+                        .requestMatchers( "/api/archives").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts").permitAll()
                         .anyRequest().authenticated()
                 );
