@@ -1,7 +1,9 @@
 package junki.fishkeepingback.domain.user;
 
 import jakarta.persistence.*;
+import junki.fishkeepingback.domain.comment.Comment;
 import junki.fishkeepingback.domain.post.Post;
+import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.global.config.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +25,12 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
+
+    @OneToMany(mappedBy = "user")
+    private List<Archive> archives;
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 
     public User(String username, String password) {
         this.username = username;
