@@ -55,10 +55,11 @@ public class PostService {
         return postRepository.findByUsername(username, archiveName, pageRequest);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostDetailRes get(Long postId) {
         List<CommentRes> comments = commentService.findByPostId(postId);
         Post post = findById(postId);
+        post.increaseViews();
         return new PostDetailRes(post, comments);
     }
 }

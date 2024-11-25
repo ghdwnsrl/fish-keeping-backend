@@ -58,4 +58,8 @@ public class Post extends BaseEntity {
         this.archive = archive;
         archive.getPosts().add(this);
     }
+
+    public void increaseViews() {
+        this.views++;
+    }
 }

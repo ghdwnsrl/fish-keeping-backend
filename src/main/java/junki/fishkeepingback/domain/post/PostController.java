@@ -1,6 +1,8 @@
 package junki.fishkeepingback.domain.post;
 
 import jakarta.validation.Valid;
+import junki.fishkeepingback.domain.image.ImageService;
+import junki.fishkeepingback.domain.image.dto.ImageDto;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
@@ -13,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final ImageService imageService;
 
     @GetMapping
     public Page<PostRes> getPosts(
@@ -34,7 +39,9 @@ public class PostController {
     @PostMapping
     public ResponseEntity<Long> createPost(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody PostReq post) {
         String username = userDetails.getUsername();
+        log.info("create post {}", post);
         Long result = postService.create(post, username);
+        imageService.save(result, post.images());
         return ResponseEntity
                 .ok(result);
     }
@@ -42,7 +49,6 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailRes> getPost(@PathVariable Long postId) {
         PostDetailRes postRes = postService.get(postId);
-        log.info(postRes.toString());
         return ResponseEntity
                 .ok(postRes);
     }
