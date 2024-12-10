@@ -6,6 +6,7 @@ import junki.fishkeepingback.domain.image.dto.ImageDto;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
+import junki.fishkeepingback.domain.post.dto.UpdatePostDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,21 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailRes> getPost(@PathVariable Long postId) {
         PostDetailRes postRes = postService.get(postId);
-        return ResponseEntity
-                .ok(postRes);
+        return ResponseEntity.ok(postRes);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        log.info("delete post {}", postId);
+        postService.delete(postId, userDetails.getUsername());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{postId}")
+    public ResponseEntity<Void> updatePost(@AuthenticationPrincipal UserDetails userDetails, @RequestBody PostReq updatePostDto, @PathVariable Long postId) {
+        log.info("update post {}", updatePostDto);
+        postService.update(userDetails, updatePostDto, postId);
+        imageService.save(postId, updatePostDto.images());
+        return ResponseEntity.ok().build();
     }
 }

@@ -31,6 +31,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                                 post.user.username,
                                 post.comments.size(),
                                 post.views,
+                                post.thumbnailUrl,
                                 post.createdAt
                         ))
                 .from(post)

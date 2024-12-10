@@ -3,6 +3,7 @@ package junki.fishkeepingback.domain.post;
 import jakarta.persistence.*;
 import junki.fishkeepingback.domain.comment.Comment;
 import junki.fishkeepingback.domain.archive.Archive;
+import junki.fishkeepingback.domain.image.Image;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.global.config.BaseEntity;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
 
+    private String thumbnailUrl;
+
     public void addUser(User user) {
         if (this.user != null) {
             this.user.getPosts().remove(this);
@@ -61,5 +64,12 @@ public class Post extends BaseEntity {
 
     public void increaseViews() {
         this.views++;
+    }
+
+    public void update(String title, String content, String thumbnailUrl) {
+        this.title = title;
+        this.content = content;
+        this.thumbnailUrl = thumbnailUrl;
+        // TODO : Archive 도 설정해줘야함
     }
 }

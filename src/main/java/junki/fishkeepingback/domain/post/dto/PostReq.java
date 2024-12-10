@@ -9,5 +9,6 @@ public record PostReq(
         @NotBlank String title,
         @NotBlank String content,
         String archiveName,
-        List<ImageDto> images
+        List<ImageDto> images,
+        String thumbnailUrl
 ) { }

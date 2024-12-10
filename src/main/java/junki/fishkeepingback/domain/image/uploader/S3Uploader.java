@@ -1,7 +1,11 @@
 package junki.fishkeepingback.domain.image.uploader;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import junki.fishkeepingback.domain.image.dto.ImageDto;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
+import java.net.URL;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,36 +32,39 @@ public class S3Uploader {
     private String bucket;
 
     @Transactional
-    public ImageDto upload(MultipartFile multipartFile) {
-
-        // 저장할 이미지가 없으면 throw error
-//        if(ObjectUtils.isEmpty(multipartFile)) {
-//        }
-
-        String originalFilename = multipartFile.getOriginalFilename();
-        String fileName = createFileName(originalFilename);
-
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
-
-        try {
-            amazonS3.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String url = amazonS3.getUrl(bucket, fileName).toString();
-        return new ImageDto(originalFilename, fileName, url);
-    }
-
-    @Transactional
     public void delete(String fileName) {
         try {
+            log.info("Deleting file {}", fileName);
             amazonS3.deleteObject(bucket, fileName);
         } catch (AmazonServiceException e ) {
             log.error(e.toString());
         }
+    }
+
+    public String getPreSignedUrl(String fileName, String contentType) {
+        String filename = createFileName(fileName);
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePreSignedUrlRequest(bucket, filename, contentType);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        return url.toString();
+    }
+
+    private GeneratePresignedUrlRequest getGeneratePreSignedUrlRequest(String bucket, String fileName, String contentType) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucket, fileName)
+                        .withMethod(HttpMethod.PUT)
+                        .withExpiration(getPreSignedUrlExpiration());
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString());
+        return generatePresignedUrlRequest;
+    }
+
+    private Date getPreSignedUrlExpiration() {
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 2;
+        expiration.setTime(expTimeMillis);
+        return expiration;
     }
 
     private String createFileName(String fileName) {
