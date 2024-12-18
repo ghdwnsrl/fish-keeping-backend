@@ -4,16 +4,16 @@ import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.archive.ArchiveService;
 import junki.fishkeepingback.domain.comment.CommentService;
 import junki.fishkeepingback.domain.comment.dto.CommentRes;
-import junki.fishkeepingback.domain.comment.exception.PostNotFound;
 import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
-import junki.fishkeepingback.domain.post.dto.UpdatePostDto;
+import junki.fishkeepingback.domain.post.error.PostError;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
+import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -54,7 +54,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public Post findById(Long postId) {
         return postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFound("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +83,7 @@ public class PostService {
     @Transactional
     public void update(UserDetails userDetails, PostReq updatePostDto, Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFound("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
         log.info(post.getThumbnailUrl());
         log.info(updatePostDto.thumbnailUrl());
         if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {

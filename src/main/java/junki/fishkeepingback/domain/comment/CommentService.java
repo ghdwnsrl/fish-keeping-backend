@@ -6,14 +6,19 @@ import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import junki.fishkeepingback.domain.post.Post;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
+import junki.fishkeepingback.global.error.CommonErrorCode;
+import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -41,9 +46,37 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
+    @Transactional(readOnly = true)
     public List<CommentRes> findByPostId(Long postId) {
         return commentRepository.findByPostId(postId)
                 .stream().map(CommentRes::new)
                 .toList();
+    }
+
+    @Transactional
+    public void update(UserDetails userDetails, CommentReq updateCommentDto, Long commentId) {
+        String username = userDetails.getUsername();
+        commentRepository.findById(commentId)
+                .ifPresentOrElse(
+                        comment -> updateComment(updateCommentDto, comment, username),
+                        () -> {throw new RestApiException(CommonErrorCode.ForbiddenOperationException);}
+                );
+    }
+
+    private static void updateComment(CommentReq updateCommentDto, Comment comment, String username) {
+        if (!comment.getUser().getUsername().equals(username)) {
+            throw new RestApiException(CommonErrorCode.ForbiddenOperationException);
+        }
+        comment.update(updateCommentDto.content());
+    }
+
+    @Transactional
+    public void delete(Long commentId, String username) {
+        commentRepository.findById(commentId)
+                .ifPresent(comment -> {
+                    if (comment.getUser().getUsername().equals(username)) {
+                        commentRepository.delete(comment);
+                    }
+                });
     }
 }

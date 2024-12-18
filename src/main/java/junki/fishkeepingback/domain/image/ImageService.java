@@ -1,10 +1,11 @@
 package junki.fishkeepingback.domain.image;
 
-import junki.fishkeepingback.domain.comment.exception.PostNotFound;
 import junki.fishkeepingback.domain.image.dto.ImageDto;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.Post;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
+import junki.fishkeepingback.domain.post.error.PostError;
+import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ImageService {
         if (images.isEmpty())
             return;
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFound("존재하지 않는 게시물입니다."));
+                .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
         images.forEach(image -> imageRepository.save(new Image(post, image.url(), image.url().substring(image.url().lastIndexOf("/") + 1))));
     }
 

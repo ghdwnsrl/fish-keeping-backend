@@ -1,4 +1,4 @@
-package junki.fishkeepingback.global.config;
+package junki.fishkeepingback.global.config.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -52,13 +54,11 @@ class SecurityConfig {
                     config.setMaxAge(3600L);
                     return config;
                 }))
-                .logout(logout ->
-                        logout
-                                .logoutUrl("/api/logout")
-                                .logoutSuccessHandler(logoutSuccessHandler())
+                .logout(logout -> logout.logoutUrl("/api/logout")
+                        .logoutSuccessHandler(logoutSuccessHandler())
                 )
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/login", "/api/join").permitAll()
+                        .requestMatchers("/api/login", "/api/join", "/api/session/validate").permitAll()
                         .requestMatchers( "/api/archives").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts").permitAll()
                         .anyRequest().authenticated()
@@ -80,7 +80,7 @@ class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new CustomAuthenticationProvider();
         provider.setPasswordEncoder(encoder());
         provider.setUserDetailsService(userDetailsService);
         return new ProviderManager(provider);
