@@ -4,11 +4,14 @@ import jakarta.persistence.*;
 import junki.fishkeepingback.domain.post.Post;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.global.config.BaseEntity;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static jakarta.persistence.FetchType.*;
 import static jakarta.persistence.GenerationType.*;
 import static lombok.AccessLevel.*;
 
@@ -22,13 +25,20 @@ public class Comment extends BaseEntity {
     @Column(name = "comment_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
 
     private String content;
 
@@ -45,7 +55,17 @@ public class Comment extends BaseEntity {
         post.getComments().add(this);
     }
 
+    public void addComment(Comment comment) {
+        this.children.add(comment);
+        comment.setParent(this);
+    }
+
+    private void setParent(Comment parent) {
+        this.parent = parent;
+    }
+
     public void update(String content) {
         this.content = content;
     }
+
 }

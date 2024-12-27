@@ -1,6 +1,7 @@
 package junki.fishkeepingback.domain.comment;
 
 import jakarta.validation.Valid;
+import junki.fishkeepingback.domain.comment.dao.comment.CommentRepository;
 import junki.fishkeepingback.domain.comment.dto.CommentReq;
 import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import junki.fishkeepingback.domain.post.Post;
@@ -16,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,9 +26,8 @@ public class CommentService {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public Page<CommentRes> getCommentList(PageRequest pageRequest) {
-        return commentRepository.findAll(pageRequest)
-                .map(CommentRes::new);
+    public Page<CommentRes> getCommentList(Long postId, PageRequest pageRequest) {
+        return commentRepository.findCommentsByPostId(postId, pageRequest);
     }
 
     @Transactional
@@ -41,16 +39,20 @@ public class CommentService {
                 .content(commentReq.content())
                 .build();
 
+        if (commentReq.parentId() != null) {
+            Comment parent = commentRepository.findById(commentReq.parentId())
+                    .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            parent.addComment(comment);
+        }
+
         comment.addPost(post);
 
         commentRepository.save(comment);
     }
 
-    @Transactional(readOnly = true)
-    public List<CommentRes> findByPostId(Long postId) {
-        return commentRepository.findByPostId(postId)
-                .stream().map(CommentRes::new)
-                .toList();
+    @Transactional
+    public Page<CommentRes> findByPostId(Long postId, PageRequest pageRequest) {
+        return commentRepository.findCommentsByPostId(postId, pageRequest);
     }
 
     @Transactional

@@ -60,7 +60,7 @@ class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/login", "/api/join", "/api/session/validate").permitAll()
                         .requestMatchers( "/api/archives").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts", "/api/*/comments").permitAll()
                         .anyRequest().authenticated()
                 );
 

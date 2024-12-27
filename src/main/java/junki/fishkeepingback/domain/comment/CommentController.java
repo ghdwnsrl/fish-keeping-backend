@@ -23,15 +23,18 @@ public class CommentController {
     private final CommentService commentService;
     private final PostService postService;
 
-    @GetMapping("/comments")
-    public Page<CommentRes> getComments(
+    @GetMapping("/{postId}/comments")
+    public Page<CommentRes> getComment(
+            @PathVariable Long postId,
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo) {
         PageRequest pageRequest = PageRequest.of(pageNo, 5);
-        return commentService.getCommentList(pageRequest);
+        return commentService.getCommentList(postId, pageRequest);
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<Void> create(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody CommentReq commentReq) {
+    public ResponseEntity<Void> create(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails,
+                                       @Valid @RequestBody CommentReq commentReq) {
+        log.info("Creating comment {}", commentReq);
         Post post = postService.findById(postId);
         commentService.create(userDetails.getUsername(), post, commentReq);
         return ResponseEntity.ok().build();

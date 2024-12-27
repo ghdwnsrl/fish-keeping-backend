@@ -64,7 +64,8 @@ public class PostService {
 
     @Transactional
     public PostDetailRes get(Long postId) {
-        List<CommentRes> comments = commentService.findByPostId(postId);
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        Page<CommentRes> comments = commentService.findByPostId(postId, pageRequest);
         Post post = findById(postId);
         post.increaseViews();
         return new PostDetailRes(post, comments);
@@ -76,7 +77,6 @@ public class PostService {
                 .ifPresent(post -> {
                     if (isOwner(username, post))
                         postRepository.deleteById(postId);
-
                 });
     }
 
