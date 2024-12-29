@@ -15,12 +15,12 @@ public record PostDetailRes(
         String content,
         String username,
         Integer views,
-        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt,
-        Page<CommentRes> comments
+        Boolean liked,
+        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt
 ) {
-    public PostDetailRes(Post post, Page<CommentRes> comments) {
+    public PostDetailRes(Post post, Boolean liked) {
         this(post.getId(), post.getTitle(), post.getContent(),
-                post.getUser().getUsername(), post.getViews(),
-                post.getCreatedAt(), comments);
+                post.getUser().getUsername(), post.getViews(), liked,
+                post.getCreatedAt());
     }
 }

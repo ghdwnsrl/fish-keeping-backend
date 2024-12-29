@@ -2,8 +2,6 @@ package junki.fishkeepingback.domain.post;
 
 import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.archive.ArchiveService;
-import junki.fishkeepingback.domain.comment.CommentService;
-import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
@@ -11,6 +9,7 @@ import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.error.PostError;
+import junki.fishkeepingback.domain.postlike.PostLikeRepository;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.error.RestApiException;
@@ -22,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +30,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final ArchiveService archiveService;
-    private final CommentService commentService;
     private final ImageService imageService;
     private final S3Uploader s3Uploader;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public Long create(PostReq postReq, String username) {
@@ -63,12 +62,23 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes get(Long postId) {
-        PageRequest pageRequest = PageRequest.of(0, 5);
-        Page<CommentRes> comments = commentService.findByPostId(postId, pageRequest);
+    public PostDetailRes get(Long postId, UserDetails userDetails) {
         Post post = findById(postId);
         post.increaseViews();
-        return new PostDetailRes(post, comments);
+        boolean isLiked = getIsLiked(userDetails, post);
+        return new PostDetailRes(post, isLiked);
+    }
+
+    public boolean getIsLiked(UserDetails userDetails, Post post) {
+        return Optional.ofNullable(userDetails)
+                .map(ud -> this.someOtherLogic(ud, post))
+                .orElse(false);
+    }
+
+
+    private boolean someOtherLogic(UserDetails userDetails, Post post) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        return postLikeRepository.existsByPostAndUser(post, user);
     }
 
     public void delete(Long postId, String username) {

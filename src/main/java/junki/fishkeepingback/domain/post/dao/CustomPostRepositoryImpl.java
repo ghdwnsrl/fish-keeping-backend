@@ -2,6 +2,7 @@ package junki.fishkeepingback.domain.post.dao;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import junki.fishkeepingback.domain.post.dto.PostRes;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import static junki.fishkeepingback.domain.post.QPost.post;
+import static junki.fishkeepingback.domain.postlike.QPostLike.*;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +34,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                                 post.comments.size(),
                                 post.views,
                                 post.thumbnailUrl,
+                                JPAExpressions
+                                        .select(postLike.count())
+                                        .from(postLike)
+                                        .where(postLike.post.id.eq(post.id)),
                                 post.createdAt
                         ))
                 .from(post)

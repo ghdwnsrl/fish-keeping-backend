@@ -12,4 +12,5 @@ public record PostRes(
         Integer commentCount,
         Integer views,
         String thumbnailUrl,
+        Long likeCount,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) { }
