@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @RequiredArgsConstructor
 @Slf4j
 class SecurityConfig {

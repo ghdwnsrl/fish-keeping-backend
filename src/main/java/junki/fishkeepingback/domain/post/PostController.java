@@ -50,6 +50,12 @@ public class PostController {
         return ResponseEntity.ok(postRes);
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<List<PostRes>> getPopularPost() {
+        List<PostRes> postRes = postService.getPopularPost();
+        return ResponseEntity.ok(postRes);
+    }
+
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
         postService.delete(postId, userDetails.getUsername());
