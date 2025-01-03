@@ -5,17 +5,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import junki.fishkeepingback.domain.post.Post;
 import junki.fishkeepingback.domain.post.dto.PostRes;
+import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import static junki.fishkeepingback.domain.post.QPost.post;
 import static junki.fishkeepingback.domain.postlike.QPostLike.*;
@@ -27,7 +24,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PostRes> findByUsername(String username, String archiveName, Pageable pageable) {
+    public Page<PostRes> findByUsername(String username, String archiveName, Pageable pageable, PostSearchParam postSearchParam) {
 
         List<PostRes> contents = queryFactory.select(
                         Projections.constructor(
@@ -45,7 +42,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                                 post.createdAt
                         ))
                 .from(post)
-                .where(usernameEq(username), archiveNameEq(archiveName))
+                .where(usernameEq(username), archiveNameEq(archiveName), searchConditionEq(postSearchParam))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -86,6 +83,25 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
     private BooleanExpression usernameEq(String nameCond) {
         if (nameCond == null) { return null; }
         return post.user.username.eq(nameCond);
+    }
+
+    private BooleanExpression searchConditionEq(PostSearchParam postSearchParam) {
+        if (postSearchParam == null) { return null; }
+
+        String target = postSearchParam.target();
+        switch (postSearchParam.type()) {
+            case "title" -> {
+                return post.title.contains(target);
+            }
+            case "all" -> {
+                return post.title.contains(target)
+                        .or(post.content.contains(target));
+            }
+            case "username" -> {
+                return post.user.username.eq(target);
+            }
+        }
+        return null;
     }
 
     private BooleanExpression archiveNameEq(String nameCond) {

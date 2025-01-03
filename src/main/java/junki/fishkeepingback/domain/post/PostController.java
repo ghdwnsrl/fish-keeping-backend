@@ -5,6 +5,7 @@ import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
+import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,11 +30,13 @@ public class PostController {
     public ResponseEntity<Page<PostRes>> getPosts(
             @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
             @RequestParam(required = false) String username,
-            @RequestParam(required = false) String archiveName
+            @RequestParam(required = false) String archiveName,
+            @PostSearchRequest PostSearchParam postSearchParam
             ) {
+        log.info("Searching posts for {}", postSearchParam);
         PageRequest pageRequest = PageRequest.of(pageNo, 10);
-        postService.getPosts(pageRequest, username, archiveName);
-        return ResponseEntity.ok(postService.getPosts(pageRequest, username, archiveName));
+        postService.getPosts(pageRequest, username, archiveName, postSearchParam);
+        return ResponseEntity.ok(postService.getPosts(pageRequest, username, archiveName, postSearchParam));
     }
 
     @PostMapping

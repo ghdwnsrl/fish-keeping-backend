@@ -8,6 +8,7 @@ import junki.fishkeepingback.domain.post.dao.PostRepository;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
+import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import junki.fishkeepingback.domain.post.error.PostError;
 import junki.fishkeepingback.domain.postlike.PostLikeRepository;
 import junki.fishkeepingback.domain.user.User;
@@ -58,8 +59,8 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName) {
-        return postRepository.findByUsername(username, archiveName, pageRequest);
+    public Page<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
+        return postRepository.findByUsername(username, archiveName, pageRequest, postSearchParam);
     }
 
     @Transactional
