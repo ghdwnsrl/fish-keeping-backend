@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface CustomArchiveRepository {
     List<ArchiveRes> findByUsername(String username);
+    boolean existsByUsernameAndArchiveName(String username, String archiveName);
 }

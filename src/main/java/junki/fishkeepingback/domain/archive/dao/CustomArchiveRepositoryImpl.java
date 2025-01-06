@@ -26,9 +26,18 @@ public class CustomArchiveRepositoryImpl implements CustomArchiveRepository {
                         post.id.count().as("totalPosts"),
                         post.createdAt.max().as("lastModified")
                 ))
-                .from(post).leftJoin(post.archive, archive)
-                .where(post.user.username.eq(username))
-                .groupBy(post.archive.id)
+                .from(archive)
+                .leftJoin(post).on(archive.id.eq(post.archive.id))
+                .where(archive.user.username.eq(username))
+                .groupBy(archive.id)
                 .fetch();
+    }
+
+    @Override
+    public boolean existsByUsernameAndArchiveName(String username, String archiveName) {
+        return query.selectOne()
+                .from(archive)
+                .where(archive.user.username.eq(username).and(archive.name.eq(archiveName)))
+                .fetchFirst() != null;
     }
 }

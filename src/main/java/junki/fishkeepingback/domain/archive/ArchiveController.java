@@ -20,8 +20,8 @@ public class ArchiveController {
     private final ArchiveService archiveService;
 
     @PostMapping
-    public ResponseEntity<Long> create(@RequestBody ArchiveReq archiveReq) {
-        Long tagId = archiveService.create(archiveReq);
+    public ResponseEntity<Long> create(@AuthenticationPrincipal UserDetails userDetails , @RequestBody ArchiveReq archiveReq) {
+        Long tagId = archiveService.create(archiveReq, userDetails);
         return ResponseEntity.ok(tagId);
     }
 
