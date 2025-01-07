@@ -1,4 +1,4 @@
-package junki.fishkeepingback.domain.comment.dao.comment;
+package junki.fishkeepingback.domain.comment.dao;
 
 import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import org.springframework.data.domain.Page;

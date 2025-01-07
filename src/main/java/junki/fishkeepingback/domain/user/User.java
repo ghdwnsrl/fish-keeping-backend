@@ -32,6 +32,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
+    private String profileImageUrl;
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;

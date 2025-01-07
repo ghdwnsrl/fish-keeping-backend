@@ -1,7 +1,7 @@
 package junki.fishkeepingback.domain.comment;
 
 import jakarta.validation.Valid;
-import junki.fishkeepingback.domain.comment.dao.comment.CommentRepository;
+import junki.fishkeepingback.domain.comment.dao.CommentRepository;
 import junki.fishkeepingback.domain.comment.dto.CommentReq;
 import junki.fishkeepingback.domain.comment.dto.CommentRes;
 import junki.fishkeepingback.domain.post.Post;
@@ -51,11 +51,6 @@ public class CommentService {
     }
 
     @Transactional
-    public Page<CommentRes> findByPostId(Long postId, PageRequest pageRequest) {
-        return commentRepository.findCommentsByPostId(postId, pageRequest);
-    }
-
-    @Transactional
     public void update(UserDetails userDetails, CommentReq updateCommentDto, Long commentId) {
         String username = userDetails.getUsername();
         commentRepository.findById(commentId)
@@ -65,7 +60,7 @@ public class CommentService {
                 );
     }
 
-    private static void updateComment(CommentReq updateCommentDto, Comment comment, String username) {
+    private void updateComment(CommentReq updateCommentDto, Comment comment, String username) {
         if (!comment.getUser().getUsername().equals(username)) {
             throw new RestApiException(CommonErrorCode.ForbiddenOperationException);
         }
@@ -80,5 +75,11 @@ public class CommentService {
                         commentRepository.delete(comment);
                     }
                 });
+    }
+
+    @Transactional
+    public void deleteByPostId(Long postId) {
+        commentRepository.deleteChildCommentsByPostId(postId);
+        commentRepository.deleteParentCommentsByPostId(postId);
     }
 }

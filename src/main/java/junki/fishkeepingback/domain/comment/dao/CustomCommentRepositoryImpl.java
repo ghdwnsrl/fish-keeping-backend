@@ -1,4 +1,4 @@
-package junki.fishkeepingback.domain.comment.dao.comment;
+package junki.fishkeepingback.domain.comment.dao;
 
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
@@ -58,34 +58,34 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
     private static List<CommentRes> getResult(Map<Long, List<CommentDto>> transform) {
         List<CommentRes> result = new ArrayList<>();
         transform.forEach((groupId, commentDtos) ->
-                        commentDtos.stream()
-                            .filter(commentDto -> commentDto.id().equals(groupId))
-                            .findFirst()
-                            .ifPresentOrElse((parentComment) -> {
+                commentDtos.stream()
+                        .filter(commentDto -> commentDto.id().equals(groupId))
+                        .findFirst()
+                        .ifPresentOrElse((parentComment) -> {
 
-                                List<CommentDto> childComments = commentDtos.stream()
-                                        .filter(commentDto -> !commentDto.id().equals(groupId))
-                                        .collect(Collectors.toList());
+                                    List<CommentDto> childComments = commentDtos.stream()
+                                            .filter(commentDto -> !commentDto.id().equals(groupId))
+                                            .collect(Collectors.toList());
 
-                                CommentRes commentRes = new CommentRes(
-                                        parentComment.id(),
-                                        parentComment.content(),
-                                        parentComment.username(),
-                                        childComments,
-                                        parentComment.createdAt()
-                                );
-                                result.add(commentRes);
-                            },
-                () -> {
-                    CommentRes commentRes = new CommentRes(
-                            null,
-                            null,
-                            null,
-                            commentDtos,
-                            null
-                    );
-                    result.add(commentRes);
-                }));
+                                    CommentRes commentRes = new CommentRes(
+                                            parentComment.id(),
+                                            parentComment.content(),
+                                            parentComment.username(),
+                                            childComments,
+                                            parentComment.createdAt()
+                                    );
+                                    result.add(commentRes);
+                                },
+                                () -> {
+                                    CommentRes commentRes = new CommentRes(
+                                            null,
+                                            null,
+                                            null,
+                                            commentDtos,
+                                            null
+                                    );
+                                    result.add(commentRes);
+                                }));
         return result;
     }
 

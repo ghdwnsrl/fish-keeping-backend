@@ -1,5 +1,6 @@
 package junki.fishkeepingback.domain.image;
 
+import junki.fishkeepingback.domain.image.dao.ImageRepository;
 import junki.fishkeepingback.domain.image.dto.ImageDto;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.Post;

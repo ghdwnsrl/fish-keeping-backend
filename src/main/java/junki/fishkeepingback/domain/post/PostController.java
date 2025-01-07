@@ -1,11 +1,13 @@
 package junki.fishkeepingback.domain.post;
 
 import jakarta.validation.Valid;
+import junki.fishkeepingback.domain.comment.CommentService;
 import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
+import junki.fishkeepingback.domain.postlike.PostLikeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,8 @@ public class PostController {
 
     private final PostService postService;
     private final ImageService imageService;
+    private final PostLikeService postLikeService;
+    private final CommentService commentService;
 
     @GetMapping
     public ResponseEntity<Page<PostRes>> getPosts(
@@ -33,7 +37,6 @@ public class PostController {
             @RequestParam(required = false) String archiveName,
             @PostSearchRequest PostSearchParam postSearchParam
             ) {
-        log.info("Searching posts for {}", postSearchParam);
         PageRequest pageRequest = PageRequest.of(pageNo, 10);
         postService.getPosts(pageRequest, username, archiveName, postSearchParam);
         return ResponseEntity.ok(postService.getPosts(pageRequest, username, archiveName, postSearchParam));
@@ -61,6 +64,9 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long postId) {
+        imageService.delete(postId);
+        postLikeService.deleteByPostId(postId);
+        commentService.deleteByPostId(postId);
         postService.delete(postId, userDetails.getUsername());
         return ResponseEntity.ok().build();
     }

@@ -2,12 +2,16 @@ package junki.fishkeepingback.domain.user;
 
 import junki.fishkeepingback.domain.user.dto.JoinReq;
 import junki.fishkeepingback.domain.user.error.JoinError;
+import junki.fishkeepingback.global.error.CommonErrorCode;
 import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Transactional
 @RequiredArgsConstructor
@@ -51,5 +55,12 @@ public class UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
+    }
+
+    public User findByUserDetails(UserDetails userDetails) {
+        String username = Optional.ofNullable(userDetails)
+                .map(UserDetails::getUsername)
+                .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        return findByUsername(username);
     }
 }

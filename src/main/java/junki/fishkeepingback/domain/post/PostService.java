@@ -84,7 +84,6 @@ public class PostService {
     }
 
     public void delete(Long postId, String username) {
-        imageService.delete(postId);
         postRepository.findById(postId)
                 .ifPresent(post -> {
                     if (isOwner(username, post))

@@ -1,5 +1,6 @@
-package junki.fishkeepingback.domain.image;
+package junki.fishkeepingback.domain.image.dao;
 
+import junki.fishkeepingback.domain.image.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
