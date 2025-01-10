@@ -40,6 +40,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
                                         commentPathView.commentId,
                                         commentPathView.content,
                                         commentPathView.username,
+                                        commentPathView.profileImageUrl,
                                         commentPathView.createdAt
                                 ))
                         ));
@@ -71,6 +72,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
                                             parentComment.id(),
                                             parentComment.content(),
                                             parentComment.username(),
+                                            parentComment.profileImageUrl(),
                                             childComments,
                                             parentComment.createdAt()
                                     );
@@ -78,6 +80,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository{
                                 },
                                 () -> {
                                     CommentRes commentRes = new CommentRes(
+                                            null,
                                             null,
                                             null,
                                             null,

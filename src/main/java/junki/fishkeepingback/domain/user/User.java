@@ -34,9 +34,28 @@ public class User extends BaseEntity {
 
     private String profileImageUrl;
 
-    public User(String username, String password) {
+    private String introText;
+
+    private Boolean isDeleted;
+
+    public User(String username, String password, String profileImageUrl) {
         this.username = username;
         this.password = password;
+        this.profileImageUrl = profileImageUrl;
+        this.introText = "";
+        this.isDeleted = false;
+    }
+
+    public void deleteSoft() {
+        this.isDeleted = true;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateIntroText(String introText) {
+        this.introText = introText;
     }
 
     @Override

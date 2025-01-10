@@ -10,22 +10,14 @@ public record CommentRes(
         Long id,
         String content,
         String username,
+        String profileImageUrl,
         List<CommentDto> replies,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) {
-    public CommentRes(Comment comment) {
-        this(comment.getId(), comment.getContent(),
-                comment.getUser().getUsername(), null, comment.getCreatedAt());
-    }
-
-    public CommentRes(Comment comment, List<CommentDto> replies) {
-        this(comment.getId(), comment.getContent(),
-                comment.getUser().getUsername(), replies, comment.getCreatedAt());
-    }
-
-    public CommentRes(Long id, String content, String username, List<CommentDto> replies, LocalDateTime createdAt) {
+    public CommentRes(Long id, String content, String username, String profileImageUrl, List<CommentDto> replies, LocalDateTime createdAt) {
         this.id = id;
         this.content = content;
         this.username = username;
+        this.profileImageUrl = profileImageUrl;
         this.replies = replies;
         this.createdAt = createdAt;
     }

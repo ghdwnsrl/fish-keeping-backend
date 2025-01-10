@@ -18,6 +18,7 @@ public class CommentPathView {
     private String content;
     private LocalDateTime createdAt;
     private String username;
+    private String profileImageUrl;
     private Long parentId;
     private Long postId;
     private Long groupId;

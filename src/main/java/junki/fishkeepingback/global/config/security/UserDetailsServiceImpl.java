@@ -28,6 +28,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RestApiException(UserError.USER_NOT_FOUND));
 
+        Boolean isDeleted = user.getIsDeleted();
+        if (isDeleted) {
+            throw new RestApiException(UserError.USER_NOT_FOUND);
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
