@@ -5,5 +5,5 @@ import junki.fishkeepingback.domain.post.dto.FileDto;
 import java.util.List;
 
 public record PreSignDto(
-        List<FileDto> files
+        List<FileDto> filenames
 ) { }

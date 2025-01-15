@@ -33,7 +33,7 @@ public class User extends BaseEntity {
     private List<Comment> comments;
 
     private String profileImageUrl;
-
+    private String resizedProfileImageUrl;
     private String introText;
 
     private Boolean isDeleted;
@@ -50,8 +50,9 @@ public class User extends BaseEntity {
         this.isDeleted = true;
     }
 
-    public void updateProfileImage(String profileImageUrl) {
+    public void updateProfileImage(String profileImageUrl, String resizedProfileImageUrl ) {
         this.profileImageUrl = profileImageUrl;
+        this.resizedProfileImageUrl = resizedProfileImageUrl;
     }
 
     public void updateIntroText(String introText) {

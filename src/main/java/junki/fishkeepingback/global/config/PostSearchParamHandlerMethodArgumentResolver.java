@@ -1,9 +1,8 @@
-package junki.fishkeepingback.domain.post;
+package junki.fishkeepingback.global.config;
 
 
+import junki.fishkeepingback.domain.post.PostSearchRequest;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
-import junki.fishkeepingback.global.error.CommonErrorCode;
-import junki.fishkeepingback.global.error.RestApiException;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;

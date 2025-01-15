@@ -21,7 +21,7 @@ public class ImageController {
     @PostMapping("/api/presigned-url")
     public ResponseEntity<List<String>> getPresignedUrl(@RequestBody PreSignDto preSignDto) {
         log.info("getting presigned url {}", preSignDto);
-        List<String> preSignedUrls = preSignDto.files().stream()
+        List<String> preSignedUrls = preSignDto.filenames().stream()
                 .map(f -> s3Uploader.getPreSignedUrl(f.fileName(), f.contentType()))
                 .toList();
         return ResponseEntity.ok().body(preSignedUrls);

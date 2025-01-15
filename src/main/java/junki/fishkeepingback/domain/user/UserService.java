@@ -1,6 +1,7 @@
 package junki.fishkeepingback.domain.user;
 
 import junki.fishkeepingback.domain.user.dto.JoinReq;
+import junki.fishkeepingback.domain.user.dto.ProfileImageReq;
 import junki.fishkeepingback.domain.user.dto.UserInfoRes;
 import junki.fishkeepingback.domain.user.dto.UserUpdateReq;
 import junki.fishkeepingback.domain.user.error.JoinError;
@@ -90,14 +91,21 @@ public class UserService {
     }
 
     public void update(UserDetails userDetails, UserUpdateReq userInfo) {
+
         User user = findByUsername(userDetails.getUsername());
 
         Optional.ofNullable(userInfo)
-                .map(UserUpdateReq::profileImageUrl)
-                .ifPresent(user::updateProfileImage);
+                .map(UserUpdateReq::profileImage)
+                .ifPresent(profileImageReq -> updateProfileImage(profileImageReq, user));
 
         Optional.ofNullable(userInfo)
                 .map(UserUpdateReq::introText)
                 .ifPresent(user::updateIntroText);
+    }
+
+    private void updateProfileImage(ProfileImageReq profileImageReq, User user) {
+        user.updateProfileImage(
+                profileImageReq.profileImageUrl(),
+                profileImageReq.resizedProfileImageUrl());
     }
 }
