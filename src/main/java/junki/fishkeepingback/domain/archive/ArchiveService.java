@@ -45,7 +45,7 @@ public class ArchiveService {
     }
 
     public Archive findByArchiveName(String archiveName, User user) {
-        return archiveRepository.findByName(archiveName)
+        return archiveRepository.findByNameAndUserUsername(archiveName, user.getUsername())
                 .orElseGet(() -> new Archive(archiveName, user));
     }
 }

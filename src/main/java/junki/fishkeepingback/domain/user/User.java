@@ -8,7 +8,10 @@ import junki.fishkeepingback.global.config.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static jakarta.persistence.CascadeType.*;
 
 @Entity
 @Table(name = "users")
@@ -24,13 +27,13 @@ public class User extends BaseEntity {
     private String password;
 
     @OneToMany(mappedBy = "user")
-    private List<Post> posts;
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = PERSIST)
+    private List<Archive> archives = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Archive> archives;
-
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments;
+    private List<Comment> comments = new ArrayList<>();
 
     private String profileImageUrl;
     private String resizedProfileImageUrl;

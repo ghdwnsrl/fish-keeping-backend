@@ -1,5 +1,7 @@
 package junki.fishkeepingback.domain.user;
 
+import junki.fishkeepingback.domain.archive.Archive;
+import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.user.dto.JoinReq;
 import junki.fishkeepingback.domain.user.dto.ProfileImageReq;
 import junki.fishkeepingback.domain.user.dto.UserInfoRes;
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
     @Value(value = "${baseUrl.userThumbnailUrl}")
     private String profileImageUrl;
@@ -42,7 +45,10 @@ public class UserService {
 
         String encodedPw = passwordEncoder.encode(joinReq.password());
         User user = new User(joinReq.username(), encodedPw, profileImageUrl);
+        Archive archive = new Archive("선택 안함", user);
+        archive.addUser(user);
         userRepository.save(user);
+
     }
 
     private boolean isValidPassword(JoinReq joinReq) {
@@ -90,6 +96,7 @@ public class UserService {
         user.deleteSoft();
     }
 
+    // TODO : text만 변경해도 thumbnail 이미지 사라짐
     public void update(UserDetails userDetails, UserUpdateReq userInfo) {
 
         User user = findByUsername(userDetails.getUsername());
@@ -104,6 +111,14 @@ public class UserService {
     }
 
     private void updateProfileImage(ProfileImageReq profileImageReq, User user) {
+        if (profileImageReq == null) {
+        }
+        // 기존 user thumbnail 이미지 삭제 해야함
+        String prevProfileImageUrl = user.getProfileImageUrl();
+        String prevResizedProfileImageUrl = user.getResizedProfileImageUrl();
+        imageService.deleteByStoreName(prevProfileImageUrl);
+        imageService.deleteByStoreName(prevResizedProfileImageUrl);
+
         user.updateProfileImage(
                 profileImageReq.profileImageUrl(),
                 profileImageReq.resizedProfileImageUrl());

@@ -38,6 +38,11 @@ public class Archive extends BaseEntity {
         this.user = user;
     }
 
+    public void addUser(User user) {
+        this.user = user;
+        user.getArchives().add(this);
+    }
+
     @Builder
     public Archive(Long id, String name, User user) {
         this.id = id;

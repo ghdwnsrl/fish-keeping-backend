@@ -12,4 +12,4 @@ public record PostRes(
         Integer views,
         String thumbnailUrl,
         Long likeCount,
-        @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt) { }
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt) { }
