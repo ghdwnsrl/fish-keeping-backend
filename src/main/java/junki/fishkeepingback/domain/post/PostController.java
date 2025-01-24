@@ -23,8 +23,6 @@ import java.util.List;
 @RequestMapping("/api/posts")
 public class PostController {
 
-    private final PostService postService;
-    private final ImageService imageService;
     private final PostFacade postFacade;
 
     @GetMapping
@@ -35,27 +33,26 @@ public class PostController {
             @PostSearchRequest PostSearchParam postSearchParam
             ) {
         PageRequest pageRequest = PageRequest.of(pageNo, 10);
-        postService.getPosts(pageRequest, username, archiveName, postSearchParam);
-        return ResponseEntity.ok(postService.getPosts(pageRequest, username, archiveName, postSearchParam));
+        Page<PostRes> result = postFacade.getPosts(pageRequest, username, archiveName, postSearchParam);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
     public ResponseEntity<Long> createPost(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody PostReq post) {
         String username = userDetails.getUsername();
-        Long result = postService.create(post, username);
-        imageService.save(result, post.images());
+        Long result = postFacade.create(post, username);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostDetailRes> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
-        PostDetailRes postRes = postService.get(postId, userDetails);
+        PostDetailRes postRes = postFacade.getPost(postId, userDetails);
         return ResponseEntity.ok(postRes);
     }
 
     @GetMapping("/popular")
     public ResponseEntity<List<PostRes>> getPopularPost() {
-        List<PostRes> postRes = postService.getPopularPost();
+        List<PostRes> postRes = postFacade.getPopularPost();
         return ResponseEntity.ok(postRes);
     }
 
@@ -67,8 +64,7 @@ public class PostController {
 
     @PutMapping("/{postId}")
     public ResponseEntity<Void> updatePost(@AuthenticationPrincipal UserDetails userDetails, @RequestBody PostReq updatePostDto, @PathVariable Long postId) {
-        postService.update(userDetails, updatePostDto, postId);
-        imageService.save(postId, updatePostDto.images());
+        postFacade.update(userDetails, updatePostDto, postId);
         return ResponseEntity.ok().build();
     }
 }
