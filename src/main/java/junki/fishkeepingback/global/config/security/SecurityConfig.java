@@ -23,6 +23,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,19 +46,11 @@ class SecurityConfig {
         http
                 .securityContext(securityContext -> securityContext.securityContextRepository(new HttpSessionSecurityContextRepository()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowCredentials(true);
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    config.setMaxAge(3600L);
-                    return config;
-                }))
                 .logout(logout -> logout.logoutUrl("/api/logout")
                         .logoutSuccessHandler(logoutSuccessHandler())
                 )
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers("/api/login", "/api/join", "/api/session/validate").permitAll()
                         .requestMatchers( "/api/archives").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts", "/api/*/comments", "/api/users").permitAll()

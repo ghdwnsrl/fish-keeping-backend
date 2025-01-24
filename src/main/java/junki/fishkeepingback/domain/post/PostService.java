@@ -32,7 +32,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final ArchiveService archiveService;
-    private final ImageService imageService;
     private final S3Uploader s3Uploader;
     private final PostLikeRepository postLikeRepository;
 
@@ -116,5 +115,9 @@ public class PostService {
 
     public List<PostRes> getPopularPost() {
         return postRepository.findByTop3();
+    }
+
+    public List<Post> findByArchiveName(String archiveName, String username) {
+        return postRepository.findByArchiveNameAndUserUsername(archiveName, username);
     }
 }

@@ -29,7 +29,7 @@ public class ArchiveService {
                 .map(ud -> userService.findByUsername(ud.getUsername()))
                 .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         isDuplicate(archiveReq, user);
-        Archive archive = new Archive(archiveReq.name(), user);
+        Archive archive = new Archive(archiveReq.name().trim(), user);
         return archiveRepository
                 .save(archive).getId();
     }
@@ -47,5 +47,11 @@ public class ArchiveService {
     public Archive findByArchiveName(String archiveName, User user) {
         return archiveRepository.findByNameAndUserUsername(archiveName, user.getUsername())
                 .orElseGet(() -> new Archive(archiveName, user));
+    }
+
+    public void delete(String username, String archiveName) {
+        Archive archive = archiveRepository.findByNameAndUserUsername(archiveName, username)
+                .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        archiveRepository.delete(archive);
     }
 }
