@@ -22,20 +22,17 @@ import java.util.List;
 @RequestMapping("/api/archives")
 public class ArchiveController {
 
-    private final ArchiveService archiveService;
-    private final PostFacade postFacade;
     private final ArchiveFacade archiveFacade;
-    private final PostService postService;
 
     @PostMapping
     public ResponseEntity<Long> create(@AuthenticationPrincipal UserDetails userDetails , @RequestBody ArchiveReq archiveReq) {
-        Long tagId = archiveService.create(archiveReq, userDetails);
+        Long tagId = archiveFacade.create(archiveReq, userDetails);
         return ResponseEntity.ok(tagId);
     }
 
     @GetMapping
     public ResponseEntity<Result> getAll(@RequestParam String username) {
-        List<ArchiveRes> tags = archiveService.findByUsername(username);
+        List<ArchiveRes> tags = archiveFacade.findByUsername(username);
         Result result = Result.builder()
                 .status(HttpStatus.OK.value())
                 .data(tags)

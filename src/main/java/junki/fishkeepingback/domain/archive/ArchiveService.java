@@ -24,10 +24,7 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
     private final UserService userService;
 
-    public Long create(ArchiveReq archiveReq, UserDetails userDetails) {
-        User user = Optional.ofNullable(userDetails)
-                .map(ud -> userService.findByUsername(ud.getUsername()))
-                .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    public Long create(ArchiveReq archiveReq, User user) {
         isDuplicate(archiveReq, user);
         Archive archive = new Archive(archiveReq.name().trim(), user);
         return archiveRepository
