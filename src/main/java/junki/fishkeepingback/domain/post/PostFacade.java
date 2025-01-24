@@ -48,20 +48,24 @@ public class PostFacade {
         imageService.save(postId, updatePostDto.images());
     }
 
+    @Transactional(readOnly = true)
     public List<PostRes> getPopularPost() {
         return postService.getPopularPost();
     }
 
+    @Transactional
     public Long create(PostReq post, String username) {
         Long result = postService.create(post, username);
         imageService.save(result, post.images());
         return result;
     }
 
+    @Transactional(readOnly = true)
     public PostDetailRes getPost(Long postId, UserDetails userDetails) {
         return postService.get(postId, userDetails);
     }
 
+    @Transactional(readOnly = true)
     public Page<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
         return postService.getPosts(pageRequest, username, archiveName, postSearchParam);
     }
