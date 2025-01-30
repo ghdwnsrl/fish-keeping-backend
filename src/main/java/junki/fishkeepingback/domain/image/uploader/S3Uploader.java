@@ -35,7 +35,6 @@ public class S3Uploader {
     public void delete(String fileName) {
         if (fileName == null) return;
         try {
-            log.info("Deleting file {}", fileName);
             amazonS3.deleteObject(bucket, fileName);
         } catch (AmazonServiceException e ) {
             log.error(e.toString());

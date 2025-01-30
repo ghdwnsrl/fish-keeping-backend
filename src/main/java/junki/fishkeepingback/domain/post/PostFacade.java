@@ -10,7 +10,6 @@ import junki.fishkeepingback.domain.postlike.PostLikeService;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;

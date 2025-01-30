@@ -2,7 +2,6 @@ package junki.fishkeepingback.domain.post;
 
 import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.archive.ArchiveService;
-import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;

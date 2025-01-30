@@ -35,10 +35,8 @@ public class ImageService {
     @Transactional
     public void delete(Long postId) {
         List<Image> target = imageRepository.findByPostId(postId);
-        // s3에 삭제 해야함. 병렬처리 할까 말까
-        target.forEach(image -> {
-            log.info(image.getUrl());
-        });
+
+        target.forEach(image -> s3Uploader.delete(image.getFileName()));
         imageRepository.deleteByPostId(postId);
     }
 
