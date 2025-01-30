@@ -50,9 +50,9 @@ class SecurityConfig {
                         .logoutSuccessHandler(logoutSuccessHandler())
                 )
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                        .requestMatchers("/api/login", "/api/join", "/api/session/validate").permitAll()
-                        .requestMatchers( "/api/archives").permitAll()
+                        .requestMatchers("/api/login", "/api/archives", "/api/join", "/api/session/validate").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts", "/api/*/comments", "/api/users").permitAll()
                         .anyRequest().authenticated()
                 );

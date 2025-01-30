@@ -7,6 +7,7 @@ import junki.fishkeepingback.domain.user.dto.ProfileImageReq;
 import junki.fishkeepingback.domain.user.dto.UserInfoRes;
 import junki.fishkeepingback.domain.user.dto.UserUpdateReq;
 import junki.fishkeepingback.domain.user.error.JoinError;
+import junki.fishkeepingback.global.config.security.Role;
 import junki.fishkeepingback.global.error.CommonErrorCode;
 import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,7 @@ public class UserService {
         }
 
         String encodedPw = passwordEncoder.encode(joinReq.password());
-        User user = new User(joinReq.username(), encodedPw, profileImageUrl);
+        User user = new User(joinReq.username(), encodedPw, profileImageUrl, Role.ROLE_USER);
         Archive archive = new Archive("선택 안함", user);
         archive.addUser(user);
         userRepository.save(user);
