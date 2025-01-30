@@ -14,6 +14,7 @@ import junki.fishkeepingback.domain.postlike.PostLikeRepository;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.error.RestApiException;
+import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -58,8 +59,9 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
-        return postRepository.findByUsername(username, archiveName, pageRequest, postSearchParam);
+    public PageCustom<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
+        Page<PostRes> result = postRepository.findByUsername(username, archiveName, pageRequest, postSearchParam);
+        return new PageCustom<>(result.getContent(), result.getPageable(), result.getTotalElements());
     }
 
     @Transactional

@@ -1,14 +1,13 @@
 package junki.fishkeepingback.domain.post;
 
 import jakarta.validation.Valid;
-import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
+import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,14 +25,14 @@ public class PostController {
     private final PostFacade postFacade;
 
     @GetMapping
-    public ResponseEntity<Page<PostRes>> getPosts(
-            @RequestParam(required = false, defaultValue = "0", value = "page") int pageNo,
+    public ResponseEntity<PageCustom<PostRes>> getPosts(
+            @RequestParam(required = false, defaultValue = "1", value = "page") int pageNo,
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String archiveName,
             @PostSearchRequest PostSearchParam postSearchParam
             ) {
-        PageRequest pageRequest = PageRequest.of(pageNo, 10);
-        Page<PostRes> result = postFacade.getPosts(pageRequest, username, archiveName, postSearchParam);
+        PageRequest pageRequest = PageRequest.of(Math.max(0, pageNo - 1), 10);
+        PageCustom<PostRes> result = postFacade.getPosts(pageRequest, username, archiveName, postSearchParam);
         return ResponseEntity.ok(result);
     }
 
