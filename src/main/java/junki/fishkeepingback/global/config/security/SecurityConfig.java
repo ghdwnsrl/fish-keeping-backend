@@ -2,6 +2,7 @@ package junki.fishkeepingback.global.config.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import junki.fishkeepingback.global.LoginAttemptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,7 @@ import java.util.List;
 class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
+    private final LoginAttemptService loginAttemptService;
 
     @Bean
     public BCryptPasswordEncoder encoder() {
@@ -73,7 +75,7 @@ class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new CustomAuthenticationProvider();
+        DaoAuthenticationProvider provider = new CustomAuthenticationProvider(loginAttemptService);
         provider.setPasswordEncoder(encoder());
         provider.setUserDetailsService(userDetailsService);
         return new ProviderManager(provider);

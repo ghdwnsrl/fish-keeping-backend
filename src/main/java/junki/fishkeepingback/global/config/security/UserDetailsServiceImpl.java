@@ -26,6 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new RestApiException(UserError.USER_NOT_FOUND));
 
         Boolean isDeleted = user.getIsDeleted();
+
         if (isDeleted) {
             throw new RestApiException(UserError.USER_NOT_FOUND);
         }
