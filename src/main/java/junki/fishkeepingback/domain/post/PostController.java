@@ -62,8 +62,8 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<Void> updatePost(@AuthenticationPrincipal UserDetails userDetails, @RequestBody PostReq updatePostDto, @PathVariable Long postId) {
-        postFacade.update(userDetails, updatePostDto, postId);
+    public ResponseEntity<Void> updatePost(@RequestBody PostReq updatePostDto, @PathVariable Long postId) {
+        postFacade.update(updatePostDto, postId);
         return ResponseEntity.ok().build();
     }
 }

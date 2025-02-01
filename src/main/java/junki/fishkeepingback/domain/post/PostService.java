@@ -1,44 +1,33 @@
 package junki.fishkeepingback.domain.post;
 
 import junki.fishkeepingback.domain.archive.Archive;
-import junki.fishkeepingback.domain.archive.ArchiveService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
-import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import junki.fishkeepingback.domain.post.error.PostError;
-import junki.fishkeepingback.domain.postlike.PostLikeRepository;
 import junki.fishkeepingback.domain.user.User;
-import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.error.RestApiException;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
+
     private final PostRepository postRepository;
-    private final UserService userService;
-    private final ArchiveService archiveService;
-    private final S3Uploader s3Uploader;
-    private final PostLikeRepository postLikeRepository;
 
     @Transactional
-    public Long create(PostReq postReq, String username) {
-        User user = userService.findByUsername(username);
-        Archive archive = archiveService.findByArchiveName(postReq.archiveName(), user);
+    public Long create(PostReq postReq, Archive archive, User user) {
         Post post = Post.builder()
                 .title(postReq.title())
                 .content(postReq.content())
@@ -64,23 +53,10 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailRes get(Long postId, UserDetails userDetails) {
+    public Post get(Long postId) {
         Post post = findById(postId);
         post.increaseViews();
-        boolean isLiked = getIsLiked(userDetails, post);
-        return new PostDetailRes(post, isLiked);
-    }
-
-    public boolean getIsLiked(UserDetails userDetails, Post post) {
-        return Optional.ofNullable(userDetails)
-                .map(ud -> this.someOtherLogic(ud, post))
-                .orElse(false);
-    }
-
-
-    private boolean someOtherLogic(UserDetails userDetails, Post post) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        return postLikeRepository.existsByPostAndUser(post, user);
+        return post;
     }
 
     public void delete(Long postId, String username) {
@@ -92,22 +68,15 @@ public class PostService {
     }
 
     @Transactional
-    public void update(UserDetails userDetails, PostReq updatePostDto, Long postId) {
+    public Post update(PostReq updatePostDto, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
-        log.info(post.getThumbnailUrl());
-        log.info(updatePostDto.thumbnailUrl());
-        if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {
-            log.info("기존 썸네일이 아닌 다른 썸네일이 들어옴...");
-            String[] urlParts = post.getThumbnailUrl().split("/");
-            String filename = urlParts[urlParts.length - 1];
-            s3Uploader.delete(filename);
-        }
         post.update(
                 updatePostDto.title(),
                 updatePostDto.content(),
                 updatePostDto.thumbnailUrl()
         );
+        return post;
     }
 
     private boolean isOwner(String username, Post post) {

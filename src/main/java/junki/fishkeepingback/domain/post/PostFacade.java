@@ -1,12 +1,17 @@
 package junki.fishkeepingback.domain.post;
 
+import junki.fishkeepingback.domain.archive.Archive;
+import junki.fishkeepingback.domain.archive.ArchiveService;
 import junki.fishkeepingback.domain.comment.CommentService;
 import junki.fishkeepingback.domain.image.ImageService;
+import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import junki.fishkeepingback.domain.postlike.PostLikeService;
+import junki.fishkeepingback.domain.user.User;
+import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +31,9 @@ public class PostFacade {
     private final ImageService imageService;
     private final PostLikeService postLikeService;
     private final CommentService commentService;
+    private final UserService userService;
+    private final ArchiveService archiveService;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public void deletePost(Long postId, String username) {
@@ -43,8 +51,13 @@ public class PostFacade {
     }
 
     @Transactional
-    public void update(UserDetails userDetails, PostReq updatePostDto, Long postId) {
-        postService.update(userDetails, updatePostDto, postId);
+    public void update(PostReq updatePostDto, Long postId) {
+        Post post = postService.update(updatePostDto, postId);
+        if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {
+            String[] urlParts = post.getThumbnailUrl().split("/");
+            String filename = urlParts[urlParts.length - 1];
+            s3Uploader.delete(filename);
+        }
         imageService.save(postId, updatePostDto.images());
     }
 
@@ -55,14 +68,19 @@ public class PostFacade {
 
     @Transactional
     public Long create(PostReq post, String username) {
-        Long result = postService.create(post, username);
+        User user = userService.findByUsername(username);
+        Archive archive = archiveService.findByArchiveName(post.archiveName(), user);
+        Long result = postService.create(post, archive, user);
         imageService.save(result, post.images());
         return result;
     }
 
     @Transactional(readOnly = true)
     public PostDetailRes getPost(Long postId, UserDetails userDetails) {
-        return postService.get(postId, userDetails);
+        User user = userService.findByUsername(userDetails.getUsername());
+        Post post = postService.get(postId);
+        boolean isLiked = postLikeService.getIsLiked(user, post);
+        return new PostDetailRes(post, isLiked);
     }
 
     @Transactional(readOnly = true)
