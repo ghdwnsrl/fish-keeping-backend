@@ -23,7 +23,7 @@ public class LoginAttemptService {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         String key = "login:fail:" + username;
         Long attempts = ops.increment(key);
-        if (attempts == 1) {
+        if (attempts == MAX_ATTEMPTS) {
             redisTemplate.expire(key, LOCK_TIME);
         }
         return MAX_ATTEMPTS - attempts;
