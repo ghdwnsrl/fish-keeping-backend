@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,7 +80,9 @@ public class PostFacade {
 
     @Transactional(readOnly = true)
     public PostDetailRes getPost(Long postId, UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
+        User user = Optional.ofNullable(userDetails)
+                .map(ud -> userService.findByUsername(ud.getUsername()))
+                .orElse(null);
         Post post = postService.get(postId);
         boolean isLiked = postLikeService.getIsLiked(user, post);
         return new PostDetailRes(post, isLiked);
