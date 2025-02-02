@@ -27,7 +27,7 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Long create(PostReq postReq, Archive archive, User user) {
+    public Post create(PostReq postReq, Archive archive, User user) {
         Post post = Post.builder()
                 .title(postReq.title())
                 .content(postReq.content())
@@ -37,7 +37,7 @@ public class PostService {
                 .views(0)
                 .build();
         post.addUser(user);
-        return postRepository.save(post).getId();
+        return postRepository.save(post);
     }
 
     @Transactional(readOnly = true)

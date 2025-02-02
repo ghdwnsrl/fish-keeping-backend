@@ -3,6 +3,7 @@ package junki.fishkeepingback.domain.post;
 import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.archive.ArchiveService;
 import junki.fishkeepingback.domain.comment.CommentService;
+import junki.fishkeepingback.domain.image.Image;
 import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dto.PostDetailRes;
@@ -37,7 +38,8 @@ public class PostFacade {
 
     @Transactional
     public void deletePost(Long postId, String username) {
-        imageService.delete(postId);
+        List<Image> target = imageService.delete(postId);
+        target.forEach(image -> s3Uploader.delete(image.getFileName()));
         postLikeService.deleteByPostId(postId);
         commentService.deleteByPostId(postId);
         postService.delete(postId, username);
@@ -58,7 +60,7 @@ public class PostFacade {
             String filename = urlParts[urlParts.length - 1];
             s3Uploader.delete(filename);
         }
-        imageService.save(postId, updatePostDto.images());
+        imageService.save(post, updatePostDto.images());
     }
 
     @Transactional(readOnly = true)
@@ -67,12 +69,12 @@ public class PostFacade {
     }
 
     @Transactional
-    public Long create(PostReq post, String username) {
+    public Long create(PostReq postReq, String username) {
         User user = userService.findByUsername(username);
-        Archive archive = archiveService.findByArchiveName(post.archiveName(), user);
-        Long result = postService.create(post, archive, user);
-        imageService.save(result, post.images());
-        return result;
+        Archive archive = archiveService.findByArchiveName(postReq.archiveName(), user);
+        Post post = postService.create(postReq, archive, user);
+        imageService.save(post, postReq.images());
+        return post.getId();
     }
 
     @Transactional(readOnly = true)

@@ -18,26 +18,25 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ImageService {
+
     private final ImageRepository imageRepository;
-    private final PostRepository postRepository;
     private final S3Uploader s3Uploader;
 
-
     @Transactional
-    public void save(Long postId, List<ImageDto> images) {
-        if (images.isEmpty())
-            return;
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
-        images.forEach(image -> imageRepository.save(new Image(post, image.url(), image.url().substring(image.url().lastIndexOf("/") + 1))));
+    public void save(Post post, List<ImageDto> images) {
+        if (images.isEmpty()) return;
+        images.forEach(image -> {
+            String url = image.url();
+            String fileName = url.substring(image.url().lastIndexOf("/") + 1);
+            imageRepository.save(new Image(post, url, fileName));
+        });
     }
 
     @Transactional
-    public void delete(Long postId) {
+    public List<Image> delete(Long postId) {
         List<Image> target = imageRepository.findByPostId(postId);
-
-        target.forEach(image -> s3Uploader.delete(image.getFileName()));
         imageRepository.deleteByPostId(postId);
+        return target;
     }
 
     @Transactional
