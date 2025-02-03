@@ -45,6 +45,7 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                 .where(usernameEq(username), archiveNameEq(archiveName), searchConditionEq(postSearchParam))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(post.createdAt.desc())
                 .fetch();
 
         JPAQuery<Long> countQuery = queryFactory
