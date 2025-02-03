@@ -1,7 +1,6 @@
 package junki.fishkeepingback.domain.post;
 
 import junki.fishkeepingback.domain.archive.Archive;
-import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.post.dao.PostRepository;
 import junki.fishkeepingback.domain.post.dto.PostReq;
 import junki.fishkeepingback.domain.post.dto.PostRes;
@@ -55,7 +54,7 @@ public class PostService {
     @Transactional
     public Post get(Long postId) {
         Post post = findById(postId);
-        post.increaseViews();
+//        post.increaseViews();
         return post;
     }
 

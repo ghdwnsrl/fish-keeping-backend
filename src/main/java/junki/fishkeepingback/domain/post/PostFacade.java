@@ -13,10 +13,12 @@ import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import junki.fishkeepingback.domain.postlike.PostLikeService;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
+import junki.fishkeepingback.global.ViewCountService;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ public class PostFacade {
     private final UserService userService;
     private final ArchiveService archiveService;
     private final S3Uploader s3Uploader;
+    private final ViewCountService viewCountService;
 
     @Transactional
     public void deletePost(Long postId, String username) {
@@ -78,12 +81,13 @@ public class PostFacade {
         return post.getId();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostDetailRes getPost(Long postId, UserDetails userDetails) {
         User user = Optional.ofNullable(userDetails)
                 .map(ud -> userService.findByUsername(ud.getUsername()))
                 .orElse(null);
         Post post = postService.get(postId);
+        viewCountService.incrementViewCount(postId);
         boolean isLiked = postLikeService.getIsLiked(user, post);
         return new PostDetailRes(post, isLiked);
     }
