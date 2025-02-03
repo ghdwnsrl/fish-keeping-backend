@@ -7,11 +7,12 @@ import java.time.LocalDateTime;
 
 public record ArchiveRes(
         Long id,
+        String thumbnailUrl,
         String name,
         Long totalPosts,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime lastModified
 ) {
-    public ArchiveRes(Archive archive, Long totalPosts, LocalDateTime lastModified) {
-        this(archive.getId(), archive.getName(), totalPosts, lastModified);
+    public ArchiveRes(Archive archive, String thumbnailUrl , Long totalPosts, LocalDateTime lastModified) {
+        this(archive.getId(), thumbnailUrl, archive.getName(), totalPosts, lastModified);
     }
 }
