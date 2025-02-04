@@ -10,7 +10,7 @@ public record PostDetailRes(
         String title,
         String content,
         String username,
-        String userProfileImageUrl,
+        String profileImageUrl,
         Integer views,
         Boolean liked,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt
