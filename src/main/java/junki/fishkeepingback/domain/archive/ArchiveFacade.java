@@ -45,4 +45,11 @@ public class ArchiveFacade {
     public List<ArchiveRes> findByUsername(String username) {
         return archiveService.findByUsername(username);
     }
+
+    @Transactional
+    public void update(String archiveName, String updatedName, UserDetails userDetails) {
+        Optional.ofNullable(userDetails)
+                .map(UserDetails::getUsername)
+                .ifPresent(username -> archiveService.update(archiveName,updatedName,username));
+    }
 }

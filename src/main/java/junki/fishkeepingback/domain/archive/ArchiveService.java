@@ -4,7 +4,6 @@ import junki.fishkeepingback.domain.archive.dao.ArchiveRepository;
 import junki.fishkeepingback.domain.archive.dto.ArchiveReq;
 import junki.fishkeepingback.domain.archive.dto.ArchiveRes;
 import junki.fishkeepingback.domain.user.User;
-import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.error.CommonErrorCode;
 import junki.fishkeepingback.global.error.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +22,14 @@ public class ArchiveService {
     private final ArchiveRepository archiveRepository;
 
     public Long create(ArchiveReq archiveReq, User user) {
-        isDuplicate(archiveReq, user);
+        isDuplicate(user.getUsername(), archiveReq.name());
         Archive archive = new Archive(archiveReq.name().trim(), user);
         return archiveRepository
                 .save(archive).getId();
     }
 
-    private void isDuplicate(ArchiveReq archiveReq, User user) {
-        if (archiveRepository.existsByUsernameAndArchiveName(user.getUsername(), archiveReq.name())) {
+    private void isDuplicate(String username, String archiveName) {
+        if (archiveRepository.existsByUsernameAndArchiveName(username, archiveName)) {
             throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
         }
     }
@@ -48,5 +47,11 @@ public class ArchiveService {
         Archive archive = archiveRepository.findByNameAndUserUsername(archiveName, username)
                 .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         archiveRepository.delete(archive);
+    }
+
+    public void update(String archiveName, String updatedName, String username) {
+        isDuplicate(username, updatedName);
+        archiveRepository.findByNameAndUserUsername(archiveName, username)
+                .ifPresent(archive -> archive.update(updatedName));
     }
 }

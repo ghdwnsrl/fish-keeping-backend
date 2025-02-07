@@ -46,4 +46,11 @@ public class ArchiveController {
         archiveFacade.delete(username, archiveName);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{archiveName}")
+    public ResponseEntity<Result> update(@AuthenticationPrincipal UserDetails userDetails , @PathVariable(name = "archiveName") String archiveName, @RequestBody ArchiveReq archiveReq ) {
+        String updatedName = archiveReq.name();
+        archiveFacade.update(archiveName, updatedName, userDetails);
+        return ResponseEntity.ok().build();
+    }
 }
