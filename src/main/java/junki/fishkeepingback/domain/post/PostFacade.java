@@ -17,14 +17,19 @@ import junki.fishkeepingback.global.ViewCountService;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,7 +51,11 @@ public class PostFacade {
         target.forEach(image -> s3Uploader.delete(image.getFileName()));
         postLikeService.deleteByPostId(postId);
         commentService.deleteByPostId(postId);
-        postService.delete(postId, username);
+        Post post = postService.findById(postId);
+        postService.delete(post, username);
+        String[] urlParts = post.getThumbnailUrl().split("/");
+        String filename = urlParts[urlParts.length - 1];
+        s3Uploader.delete(filename);
     }
 
     @Transactional
@@ -87,13 +96,26 @@ public class PostFacade {
                 .map(ud -> userService.findByUsername(ud.getUsername()))
                 .orElse(null);
         Post post = postService.get(postId);
-        viewCountService.incrementViewCount(postId);
+        Integer views = viewCountService.incrementViewCount(postId, post.getViews());
         boolean isLiked = postLikeService.getIsLiked(user, post);
-        return new PostDetailRes(post, isLiked);
+        return new PostDetailRes(post, views, isLiked);
     }
 
     @Transactional(readOnly = true)
     public PageCustom<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
-        return postService.getPosts(pageRequest, username, archiveName, postSearchParam);
+        Page<PostRes> posts = postService.getPosts(pageRequest, username, archiveName, postSearchParam);
+        List<String> cachedPosts = viewCountService.getKeys(posts);
+
+        List<PostRes> result = IntStream.rangeClosed(0, cachedPosts.size() - 1)
+                .mapToObj(idx -> {
+                    PostRes postRes = posts.getContent().get(idx);
+                    Optional<PostRes> cachedPostRes = Optional.ofNullable(cachedPosts.get(idx))
+                            .map(Integer::parseInt)
+                            .map(postRes::setCachedViews);
+                    return cachedPostRes.orElse(postRes);
+                })
+                .toList();
+
+        return new PageCustom<>(result, posts.getPageable(), posts.getTotalElements());
     }
 }

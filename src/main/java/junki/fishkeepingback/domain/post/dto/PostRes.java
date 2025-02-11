@@ -12,4 +12,17 @@ public record PostRes(
         Integer views,
         String thumbnailUrl,
         Long likeCount,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt) { }
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt) {
+    public PostRes setCachedViews(Integer views) {
+        return new PostRes(
+                this.id,
+                this.title,
+                this.username,
+                this.commentCount,
+                views,
+                this.thumbnailUrl,
+                this.likeCount,
+                this.createdAt
+                );
+    }
+}

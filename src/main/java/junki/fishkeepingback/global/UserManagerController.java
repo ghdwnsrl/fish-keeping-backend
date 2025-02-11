@@ -2,6 +2,7 @@ package junki.fishkeepingback.global;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.domain.user.dto.JoinReq;
 import junki.fishkeepingback.domain.user.dto.LoginReq;
@@ -17,6 +18,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
 
 @RestController
 @Slf4j

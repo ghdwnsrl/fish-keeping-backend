@@ -8,7 +8,6 @@ import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import junki.fishkeepingback.domain.post.error.PostError;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.global.error.RestApiException;
-import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,24 +45,18 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PageCustom<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
-        Page<PostRes> result = postRepository.findByUsername(username, archiveName, pageRequest, postSearchParam);
-        return new PageCustom<>(result.getContent(), result.getPageable(), result.getTotalElements());
+    public Page<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
+        return postRepository.findByUsername(username, archiveName, pageRequest, postSearchParam);
     }
 
     @Transactional
     public Post get(Long postId) {
-        Post post = findById(postId);
-//        post.increaseViews();
-        return post;
+        return findById(postId);
     }
 
-    public void delete(Long postId, String username) {
-        postRepository.findById(postId)
-                .ifPresent(post -> {
-                    if (isOwner(username, post))
-                        postRepository.deleteById(postId);
-                });
+    public void delete(Post post, String username) {
+        if (isOwner(username, post))
+            postRepository.deleteById(post.getId());
     }
 
     @Transactional

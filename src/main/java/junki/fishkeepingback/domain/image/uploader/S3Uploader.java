@@ -34,6 +34,10 @@ public class S3Uploader {
     @Transactional
     public void delete(String fileName) {
         if (fileName == null) return;
+        if (fileName.startsWith("https")) {
+            String[] urlParts = fileName.split("/");
+            fileName = urlParts[urlParts.length - 1];
+        }
         try {
             amazonS3.deleteObject(bucket, fileName);
         } catch (AmazonServiceException e ) {

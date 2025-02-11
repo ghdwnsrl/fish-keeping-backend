@@ -12,6 +12,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomPostRep
     List<Post> findByArchiveNameAndUserUsername(String archiveName, String username);
 
     @Modifying
-    @Query("update Post p set p.views=p.views+:viewCount WHERE p.id=:postId")
+    @Query("update Post p set p.views=:viewCount WHERE p.id=:postId")
     void updateViewCount(@Param("postId") Long postId, @Param("viewCount") Long viewCount);
 }

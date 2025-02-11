@@ -11,13 +11,14 @@ public record PostDetailRes(
         String content,
         String username,
         String profileImageUrl,
+        String postImageThumbnailUrl,
         Integer views,
         Boolean liked,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt
 ) {
-    public PostDetailRes(Post post, Boolean liked) {
+    public PostDetailRes(Post post, Integer views, Boolean liked) {
         this(post.getId(), post.getTitle(), post.getContent(),
-                post.getUser().getUsername(), post.getUser().getProfileImageUrl(), post.getViews(), liked,
+                post.getUser().getUsername(), post.getUser().getProfileImageUrl(), post.getThumbnailUrl(), views, liked,
                 post.getCreatedAt());
     }
 }
