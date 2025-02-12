@@ -29,7 +29,6 @@ public class PostService {
         Post post = Post.builder()
                 .title(postReq.title())
                 .content(postReq.content())
-                .thumbnailUrl(postReq.thumbnailUrl())
                 .archive(archive)
                 .user(user)
                 .views(0)
@@ -65,8 +64,7 @@ public class PostService {
                 .orElseThrow(() -> new RestApiException(PostError.POST_NOT_FOUND));
         post.update(
                 updatePostDto.title(),
-                updatePostDto.content(),
-                updatePostDto.thumbnailUrl()
+                updatePostDto.content()
         );
         return post;
     }

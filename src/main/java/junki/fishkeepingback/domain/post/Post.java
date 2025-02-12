@@ -46,7 +46,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments;
 
-    private String thumbnailUrl;
+    @OneToMany(mappedBy = "post")
+    private List<Image> images;
 
     public void addUser(User user) {
         if (this.user != null) {
@@ -64,14 +65,9 @@ public class Post extends BaseEntity {
         archive.getPosts().add(this);
     }
 
-    public void increaseViews() {
-        this.views++;
-    }
-
-    public void update(String title, String content, String thumbnailUrl) {
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.thumbnailUrl = thumbnailUrl;
         // TODO : Archive 도 설정해줘야함
     }
 }

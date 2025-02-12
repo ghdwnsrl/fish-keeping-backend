@@ -28,7 +28,7 @@ public class ImageService {
         images.forEach(image -> {
             String url = image.url();
             String fileName = url.substring(image.url().lastIndexOf("/") + 1);
-            imageRepository.save(new Image(post, url, fileName));
+            imageRepository.save(new Image(post, url, fileName, image.imageType()));
         });
     }
 
@@ -43,5 +43,12 @@ public class ImageService {
     public void deleteByStoreName(String storeName) {
         imageRepository.deleteByFileName(storeName);
         s3Uploader.delete(storeName);
+    }
+
+    public List<Image> findByPostId(Long postId) {
+        return imageRepository.findByPostId(postId);
+    }
+
+    public void findThumbnailImage(Long postId) {
     }
 }

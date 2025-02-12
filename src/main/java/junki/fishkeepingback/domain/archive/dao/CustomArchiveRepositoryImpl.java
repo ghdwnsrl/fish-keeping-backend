@@ -1,45 +1,55 @@
 package junki.fishkeepingback.domain.archive.dao;
 
-import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.archive.dto.ArchiveRes;
-import junki.fishkeepingback.domain.post.QPost;
+import junki.fishkeepingback.domain.image.Image;
+import junki.fishkeepingback.domain.post.Post;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static java.util.Comparator.*;
 import static junki.fishkeepingback.domain.archive.QArchive.*;
-import static junki.fishkeepingback.domain.post.QPost.*;
+import static junki.fishkeepingback.domain.image.ImageType.*;
+import static junki.fishkeepingback.domain.image.QImage.image;
+import static junki.fishkeepingback.domain.post.QPost.post;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomArchiveRepositoryImpl implements CustomArchiveRepository {
 
     private final JPAQueryFactory query;
 
+    // archive 별로 그룹을 나누고 최신에 작성된 post의 image의 url을 가져와야한다. 이때 imageType은 THUMBNAIL이다
+    // archive의 최신 post를 가져오고
     @Override
     public List<ArchiveRes> findByUsername(String username) {
-        QPost latestPost = new QPost("latestPost");
-
-        return query.select(Projections.constructor(
-                        ArchiveRes.class,
-                        archive.id.as("id"),
-                        JPAExpressions
-                                .select(latestPost.thumbnailUrl)
-                                .from(latestPost)
-                                .where(latestPost.archive.id.eq(archive.id)
-                                        .and(latestPost.createdAt.eq(post.createdAt.max()))),
-                        archive.name.as("name"),
-                        post.id.count().as("totalPosts"),
-                        post.createdAt.max().as("lastModified")
-                ))
-                .from(archive)
+        List<Archive> archives = query
+                .selectFrom(archive)
                 .leftJoin(post).on(archive.id.eq(post.archive.id))
+                .leftJoin(image).on(post.id.eq(image.post.id))
                 .where(archive.user.username.eq(username))
-                .groupBy(archive.id)
                 .fetch();
+
+        return archives.stream().map(archive -> {
+            Post latestPost = archive.getPosts().stream()
+                    .max(comparing(Post::getCreatedAt))  // createdAt 기준으로 최신 글을 찾기
+                    .orElse(null);
+            if (latestPost == null) {
+                return new ArchiveRes(archive, null, 0L, null);
+            }
+            String thumbnailUrl = latestPost.getImages().stream()
+                    .filter(i -> i.getType().equals(THUMBNAIL))
+                    .findFirst()
+                    .map(Image::getUrl)
+                    .orElse(null);
+            return new ArchiveRes(archive, thumbnailUrl, Integer.toUnsignedLong(archive.getPosts().size()), latestPost.getUpdatedAt());
+        }).toList();
+
     }
 
     @Override

@@ -10,8 +10,7 @@ public record PostReq(
         @NotBlank String title,
         @NotBlank String content,
         String archiveName,
-        List<ImageDto> images,
-        String thumbnailUrl
+        List<ImageDto> images
 ) {
   public PostReq {
       if (images == null) images = new ArrayList<>();

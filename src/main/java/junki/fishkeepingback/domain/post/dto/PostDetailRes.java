@@ -16,9 +16,9 @@ public record PostDetailRes(
         Boolean liked,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDateTime createdAt
 ) {
-    public PostDetailRes(Post post, Integer views, Boolean liked) {
+    public PostDetailRes(Post post, Integer views, String postImageThumbnailUrl, Boolean liked) {
         this(post.getId(), post.getTitle(), post.getContent(),
-                post.getUser().getUsername(), post.getUser().getProfileImageUrl(), post.getThumbnailUrl(), views, liked,
+                post.getUser().getUsername(), post.getUser().getProfileImageUrl(), postImageThumbnailUrl, views, liked,
                 post.getCreatedAt());
     }
 }

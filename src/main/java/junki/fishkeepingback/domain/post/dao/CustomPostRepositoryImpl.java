@@ -5,6 +5,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import junki.fishkeepingback.domain.image.ImageType;
+import junki.fishkeepingback.domain.image.QImage;
 import junki.fishkeepingback.domain.post.dto.PostRes;
 import junki.fishkeepingback.domain.post.dto.PostSearchParam;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,9 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import static junki.fishkeepingback.domain.image.ImageType.*;
+import static junki.fishkeepingback.domain.image.QImage.*;
 import static junki.fishkeepingback.domain.post.QPost.post;
 import static junki.fishkeepingback.domain.postlike.QPostLike.*;
 
@@ -34,7 +39,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                                 post.user.username,
                                 post.comments.size(),
                                 post.views,
-                                post.thumbnailUrl,
+                                JPAExpressions
+                                        .select(image.url)
+                                        .from(image)
+                                        .where(image.post.id.eq(post.id).and(image.type.eq(THUMBNAIL))),
                                 JPAExpressions
                                         .select(postLike.count())
                                         .from(postLike)
@@ -66,7 +74,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository{
                 post.user.username,
                 post.comments.size(),
                 post.views,
-                post.thumbnailUrl,
+                JPAExpressions
+                        .select(image.url)
+                        .from(image)
+                        .where(image.post.id.eq(post.id).and(image.type.eq(THUMBNAIL))),
                 JPAExpressions
                         .select(postLike.count())
                         .from(postLike)

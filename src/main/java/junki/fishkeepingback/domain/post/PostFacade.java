@@ -14,22 +14,22 @@ import junki.fishkeepingback.domain.postlike.PostLikeService;
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.global.ViewCountService;
+import junki.fishkeepingback.global.error.RestApiException;
 import junki.fishkeepingback.global.response.PageCustom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static junki.fishkeepingback.domain.image.ImageType.*;
+import static junki.fishkeepingback.global.error.CommonErrorCode.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -53,9 +53,6 @@ public class PostFacade {
         commentService.deleteByPostId(postId);
         Post post = postService.findById(postId);
         postService.delete(post, username);
-        String[] urlParts = post.getThumbnailUrl().split("/");
-        String filename = urlParts[urlParts.length - 1];
-        s3Uploader.delete(filename);
     }
 
     @Transactional
@@ -65,14 +62,20 @@ public class PostFacade {
                 .forEach(id -> deletePost(id, username));
     }
 
+    // post 가져 오고
+    // 디비에서 썸네일 가져오고
+    // 그 이미지의 Url과 updatePostDto의 THUMBNAIL 이미지 경로와 비교하고
+    // 바뀌었으면 if 블록 실행, 같은 경우 그냥 저장
     @Transactional
     public void update(PostReq updatePostDto, Long postId) {
         Post post = postService.update(updatePostDto, postId);
-        if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {
-            String[] urlParts = post.getThumbnailUrl().split("/");
-            String filename = urlParts[urlParts.length - 1];
-            s3Uploader.delete(filename);
-        }
+        // !! TODO !!
+        imageService.findThumbnailImage(postId);
+//        if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {
+//            String[] urlParts = post.getThumbnailUrl().split("/");
+//            String filename = urlParts[urlParts.length - 1];
+//            s3Uploader.delete(filename);
+//        }
         imageService.save(post, updatePostDto.images());
     }
 
@@ -96,9 +99,14 @@ public class PostFacade {
                 .map(ud -> userService.findByUsername(ud.getUsername()))
                 .orElse(null);
         Post post = postService.get(postId);
+        Image thumbnail = post.getImages()
+                .stream()
+                .filter(image -> image.getType().equals(THUMBNAIL))
+                .findFirst()
+                .orElseThrow(() -> new RestApiException(RESOURCE_NOT_FOUND));
         Integer views = viewCountService.incrementViewCount(postId, post.getViews());
         boolean isLiked = postLikeService.getIsLiked(user, post);
-        return new PostDetailRes(post, views, isLiked);
+        return new PostDetailRes(post, views, thumbnail.getUrl(), isLiked);
     }
 
     @Transactional(readOnly = true)
