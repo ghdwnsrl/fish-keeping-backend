@@ -99,14 +99,15 @@ public class PostFacade {
                 .map(ud -> userService.findByUsername(ud.getUsername()))
                 .orElse(null);
         Post post = postService.get(postId);
-        Image thumbnail = post.getImages()
+        String url = post.getImages()
                 .stream()
                 .filter(image -> image.getType().equals(THUMBNAIL))
                 .findFirst()
-                .orElseThrow(() -> new RestApiException(RESOURCE_NOT_FOUND));
+                .map(Image::getUrl)
+                .orElse(null);
         Integer views = viewCountService.incrementViewCount(postId, post.getViews());
         boolean isLiked = postLikeService.getIsLiked(user, post);
-        return new PostDetailRes(post, views, thumbnail.getUrl(), isLiked);
+        return new PostDetailRes(post, views, url, isLiked);
     }
 
     @Transactional(readOnly = true)

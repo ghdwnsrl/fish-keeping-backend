@@ -2,11 +2,15 @@ package junki.fishkeepingback.domain.user;
 
 import junki.fishkeepingback.domain.archive.Archive;
 import junki.fishkeepingback.domain.image.ImageService;
+import junki.fishkeepingback.domain.image.uploader.S3Uploader;
+import junki.fishkeepingback.domain.term.AgreeReq;
 import junki.fishkeepingback.domain.user.dto.JoinReq;
 import junki.fishkeepingback.domain.user.dto.ProfileImageReq;
 import junki.fishkeepingback.domain.user.dto.UserInfoRes;
 import junki.fishkeepingback.domain.user.dto.UserUpdateReq;
 import junki.fishkeepingback.domain.user.error.JoinError;
+import junki.fishkeepingback.domain.userterm.UserTerm;
+import junki.fishkeepingback.domain.userterm.UserTermService;
 import junki.fishkeepingback.global.config.security.Role;
 import junki.fishkeepingback.global.error.CommonErrorCode;
 import junki.fishkeepingback.global.error.RestApiException;
@@ -28,7 +32,8 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ImageService imageService;
+    private final UserTermService userTermService;
+    private final S3Uploader s3Uploader;
 
     @Value(value = "${baseUrl.userThumbnailUrl}")
     private String profileImageUrl;
@@ -43,13 +48,22 @@ public class UserService {
         if (!isConfirmPasswordMatch(joinReq)) {
             throw new RestApiException(JoinError.CONFIRM_PASSWORD_MISMATCH);
         }
+        if (!isAgree(joinReq)) {
+            throw new RestApiException(JoinError.NOT_INVALID_AGREE);
+        }
 
         String encodedPw = passwordEncoder.encode(joinReq.password());
         User user = new User(joinReq.username(), encodedPw, profileImageUrl, Role.ROLE_USER);
         Archive archive = new Archive("선택 안함", user);
         archive.addUser(user);
+        userTermService.save(user);
         userRepository.save(user);
 
+    }
+
+    private static Boolean isAgree(JoinReq joinReq) {
+        AgreeReq agreeReq = joinReq.agreeReq();
+        return (agreeReq.ageAgree() && agreeReq.privacyAgree() && agreeReq.termsAgree());
     }
 
     private boolean isValidPassword(JoinReq joinReq) {
@@ -97,7 +111,6 @@ public class UserService {
         user.deleteSoft();
     }
 
-    // TODO : text만 변경해도 thumbnail 이미지 사라짐
     public void update(UserDetails userDetails, UserUpdateReq userInfo) {
 
         User user = findByUsername(userDetails.getUsername());
@@ -112,13 +125,13 @@ public class UserService {
     }
 
     private void updateProfileImage(ProfileImageReq profileImageReq, User user) {
-        if (profileImageReq == null) {
-        }
-        // 기존 user thumbnail 이미지 삭제 해야함
         String prevProfileImageUrl = user.getProfileImageUrl();
         String prevResizedProfileImageUrl = user.getResizedProfileImageUrl();
-        imageService.deleteByStoreName(prevProfileImageUrl);
-        imageService.deleteByStoreName(prevResizedProfileImageUrl);
+
+        if (prevProfileImageUrl != null && !prevProfileImageUrl.equals(profileImageUrl))
+            s3Uploader.delete(prevProfileImageUrl);
+        if (prevResizedProfileImageUrl != null)
+            s3Uploader.delete(prevResizedProfileImageUrl);
 
         user.updateProfileImage(
                 profileImageReq.profileImageUrl(),

@@ -52,10 +52,11 @@ class SecurityConfig {
                         .logoutSuccessHandler(logoutSuccessHandler())
                 )
                 .authorizeHttpRequests(request -> request
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                         .requestMatchers("/api/login", "/api/archives", "/api/join", "/api/session/validate").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts", "/api/*/comments", "/api/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/posts/*", "/api/posts", "/api/terms/*", "/api/*/comments", "/api/users").permitAll()
                         .anyRequest().authenticated()
                 );
 
