@@ -1,4 +1,4 @@
-package junki.fishkeepingback.global.config.security;
+package junki.fishkeepingback.global.config.security.userDetailService;
 
 import junki.fishkeepingback.domain.user.User;
 import junki.fishkeepingback.domain.user.UserRepository;
@@ -21,7 +21,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RestApiException(UserError.USER_NOT_FOUND));
 

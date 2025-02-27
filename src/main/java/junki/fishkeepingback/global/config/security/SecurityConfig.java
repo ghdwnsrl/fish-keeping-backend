@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,17 +16,15 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
+
+import static junki.fishkeepingback.global.config.security.LoginType.*;
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +32,8 @@ import java.util.List;
 @Slf4j
 class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsServiceImpl;
+    private final UserDetailsService adminDetailsServiceImpl;
     private final LoginAttemptService loginAttemptService;
 
     @Bean
@@ -75,10 +73,13 @@ class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new CustomAuthenticationProvider(loginAttemptService);
+    public ProviderManager authenticationManager() {
+        Map<LoginType, UserDetailsService> map = Map.of(
+                ADMIN, adminDetailsServiceImpl,
+                USER, userDetailsServiceImpl
+        );
+        DaoAuthenticationProvider provider = new CustomUserAuthenticationProvider(loginAttemptService, map);
         provider.setPasswordEncoder(encoder());
-        provider.setUserDetailsService(userDetailsService);
         return new ProviderManager(provider);
     }
 }
