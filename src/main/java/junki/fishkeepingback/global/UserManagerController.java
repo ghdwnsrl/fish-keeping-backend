@@ -2,15 +2,14 @@ package junki.fishkeepingback.global;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import junki.fishkeepingback.domain.user.UserService;
 import junki.fishkeepingback.domain.user.dto.JoinReq;
 import junki.fishkeepingback.domain.user.dto.LoginReq;
+import junki.fishkeepingback.global.config.security.CustomAuthenticationToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,8 +17,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Date;
 
 @RestController
 @Slf4j
@@ -33,7 +30,7 @@ public class UserManagerController {
     @PostMapping("/api/login")
     public ResponseEntity<Void> login(@RequestBody LoginReq loginReq, HttpServletRequest request, HttpServletResponse response) {
         Authentication authenticationRequest =
-                UsernamePasswordAuthenticationToken.unauthenticated(loginReq.username(), loginReq.password());
+                CustomAuthenticationToken.unauthenticated(loginReq.username(), loginReq.password(), loginReq.loginType());
         Authentication authenticationResponse =
                 this.authenticationManager.authenticate(authenticationRequest);
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();

@@ -9,7 +9,6 @@ import junki.fishkeepingback.domain.user.dto.ProfileImageReq;
 import junki.fishkeepingback.domain.user.dto.UserInfoRes;
 import junki.fishkeepingback.domain.user.dto.UserUpdateReq;
 import junki.fishkeepingback.domain.user.error.JoinError;
-import junki.fishkeepingback.domain.userterm.UserTerm;
 import junki.fishkeepingback.domain.userterm.UserTermService;
 import junki.fishkeepingback.global.config.security.Role;
 import junki.fishkeepingback.global.error.CommonErrorCode;
