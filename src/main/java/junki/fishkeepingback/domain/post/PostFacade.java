@@ -62,26 +62,19 @@ public class PostFacade {
                 .forEach(id -> deletePost(id, username));
     }
 
-    // post 가져 오고
-    // 디비에서 썸네일 가져오고
-    // 그 이미지의 Url과 updatePostDto의 THUMBNAIL 이미지 경로와 비교하고
-    // 바뀌었으면 if 블록 실행, 같은 경우 그냥 저장
     @Transactional
     public void update(PostReq updatePostDto, Long postId) {
         Post post = postService.update(updatePostDto, postId);
-        // !! TODO !!
         imageService.findThumbnailImage(postId);
-//        if (!post.getThumbnailUrl().equals(updatePostDto.thumbnailUrl())) {
-//            String[] urlParts = post.getThumbnailUrl().split("/");
-//            String filename = urlParts[urlParts.length - 1];
-//            s3Uploader.delete(filename);
-//        }
         imageService.save(post, updatePostDto.images());
     }
 
+    // TODO : redis의 값으로 변경해줘야함
     @Transactional(readOnly = true)
     public List<PostRes> getPopularPost() {
-        return postService.getPopularPost();
+        List<PostRes> popularPost = postService.getPopularPost();
+        List<String> cachedPosts = viewCountService.getKeys(popularPost);
+        return getPostResList(cachedPosts, popularPost);
     }
 
     @Transactional
@@ -114,17 +107,19 @@ public class PostFacade {
     public PageCustom<PostRes> getPosts(PageRequest pageRequest, String username, String archiveName, PostSearchParam postSearchParam) {
         Page<PostRes> posts = postService.getPosts(pageRequest, username, archiveName, postSearchParam);
         List<String> cachedPosts = viewCountService.getKeys(posts);
+        List<PostRes> result = getPostResList(cachedPosts, posts.getContent());
+        return new PageCustom<>(result, posts.getPageable(), posts.getTotalElements());
+    }
 
-        List<PostRes> result = IntStream.rangeClosed(0, cachedPosts.size() - 1)
+    private static List<PostRes> getPostResList(List<String> cachedPosts, List<PostRes> posts) {
+        return IntStream.rangeClosed(0, cachedPosts.size() - 1)
                 .mapToObj(idx -> {
-                    PostRes postRes = posts.getContent().get(idx);
+                    PostRes postRes = posts.get(idx);
                     Optional<PostRes> cachedPostRes = Optional.ofNullable(cachedPosts.get(idx))
                             .map(Integer::parseInt)
                             .map(postRes::setCachedViews);
                     return cachedPostRes.orElse(postRes);
                 })
                 .toList();
-
-        return new PageCustom<>(result, posts.getPageable(), posts.getTotalElements());
     }
 }

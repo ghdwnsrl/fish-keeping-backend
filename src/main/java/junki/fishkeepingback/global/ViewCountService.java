@@ -61,4 +61,11 @@ public class ViewCountService {
                 .toList();
         return redisTemplate.opsForValue().multiGet(keys);
     }
+
+    public List<String> getKeys(List<PostRes> posts) {
+        List<String> keys = posts.stream()
+                .map(postDto -> "post:"+postDto.id()+":view_count")
+                .toList();
+        return redisTemplate.opsForValue().multiGet(keys);
+    }
 }
