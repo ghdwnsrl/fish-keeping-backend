@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class CustomUserAuthenticationProvider extends DaoAuthenticationProvider {
+public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
     private final LoginAttemptService loginAttemptService;
     private final Map<LoginType, UserDetailsService> userDetailsServiceMap;

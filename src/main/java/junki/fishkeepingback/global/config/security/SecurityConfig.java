@@ -78,7 +78,7 @@ class SecurityConfig {
                 ADMIN, adminDetailsServiceImpl,
                 USER, userDetailsServiceImpl
         );
-        DaoAuthenticationProvider provider = new CustomUserAuthenticationProvider(loginAttemptService, map);
+        DaoAuthenticationProvider provider = new CustomAuthenticationProvider(loginAttemptService, map);
         provider.setPasswordEncoder(encoder());
         return new ProviderManager(provider);
     }
