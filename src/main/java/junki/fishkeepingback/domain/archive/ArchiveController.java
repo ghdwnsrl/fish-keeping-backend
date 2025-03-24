@@ -42,8 +42,7 @@ public class ArchiveController {
 
     @DeleteMapping("/{name}")
     public ResponseEntity<Result> delete(@AuthenticationPrincipal UserDetails userDetails , @PathVariable(name = "name") String archiveName) {
-        String username = userDetails.getUsername();
-        archiveFacade.delete(username, archiveName);
+        archiveFacade.delete(userDetails, archiveName);
         return ResponseEntity.ok().build();
     }
 

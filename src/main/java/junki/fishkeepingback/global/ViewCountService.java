@@ -37,7 +37,6 @@ public class ViewCountService {
     @Scheduled(cron = "0 */3 * * * ?")
     public void updateViewCounts() {
         Set<String> keys = redisTemplate.keys("post:*:view_count");
-
         Objects.requireNonNull(keys).forEach(this::updatePostViews);
     }
 

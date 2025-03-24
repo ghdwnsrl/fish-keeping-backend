@@ -53,9 +53,8 @@ public class PostService {
         return findById(postId);
     }
 
-    public void delete(Post post, String username) {
-        if (isOwner(username, post))
-            postRepository.deleteById(post.getId());
+    public void delete(Post post) {
+        postRepository.deleteById(post.getId());
     }
 
     @Transactional
@@ -69,7 +68,7 @@ public class PostService {
         return post;
     }
 
-    private boolean isOwner(String username, Post post) {
+    public boolean isOwner(String username, Post post) {
         return post.getUser().getUsername().equals(username);
     }
 

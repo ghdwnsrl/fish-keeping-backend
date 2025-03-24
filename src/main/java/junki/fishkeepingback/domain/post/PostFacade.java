@@ -46,20 +46,26 @@ public class PostFacade {
     private final ViewCountService viewCountService;
 
     @Transactional
-    public void deletePost(Long postId, String username) {
+    public void deletePost(Long postId, UserDetails userDetails) {
+        Post post = postService.findById(postId);
+        String username = userDetails.getUsername();
+        if (!postService.isOwner(username, post) && !isAdmin(userDetails)) {
+            throw new RestApiException(ForbiddenOperationException);
+        }
         List<Image> target = imageService.delete(postId);
         target.forEach(image -> s3Uploader.delete(image.getFileName()));
         postLikeService.deleteByPostId(postId);
         commentService.deleteByPostId(postId);
-        Post post = postService.findById(postId);
-        postService.delete(post, username);
+        postService.delete(post);
     }
 
     @Transactional
-    public void deletePostsByArchiveName(String archiveName, String username) {
+    public void deletePostsByArchiveName(String archiveName, UserDetails userDetails) {
+        String username = userDetails.getUsername();
         postService.findByArchiveName(archiveName,username)
-                .stream().map(Post::getId)
-                .forEach(id -> deletePost(id, username));
+                .stream()
+                .map(Post::getId)
+                .forEach(id -> deletePost(id, userDetails));
     }
 
     @Transactional
@@ -69,7 +75,6 @@ public class PostFacade {
         imageService.save(post, updatePostDto.images());
     }
 
-    // TODO : redis의 값으로 변경해줘야함
     @Transactional(readOnly = true)
     public List<PostRes> getPopularPost() {
         List<PostRes> popularPost = postService.getPopularPost();
@@ -86,10 +91,19 @@ public class PostFacade {
         return post.getId();
     }
 
+    private boolean isAdmin(UserDetails userDetails) {
+        return userDetails.getAuthorities()
+                .stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+    }
+
     @Transactional
     public PostDetailRes getPost(Long postId, UserDetails userDetails) {
         User user = Optional.ofNullable(userDetails)
-                .map(ud -> userService.findByUsername(ud.getUsername()))
+                .map(ud -> {
+                    if (isAdmin(ud)) return null;
+                    return userService.findByUsername(ud.getUsername());
+                })
                 .orElse(null);
         Post post = postService.get(postId);
         String url = post.getImages()

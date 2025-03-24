@@ -1,7 +1,6 @@
 package junki.fishkeepingback.domain.user;
 
 import junki.fishkeepingback.domain.archive.Archive;
-import junki.fishkeepingback.domain.image.ImageService;
 import junki.fishkeepingback.domain.image.uploader.S3Uploader;
 import junki.fishkeepingback.domain.term.AgreeReq;
 import junki.fishkeepingback.domain.user.dto.JoinReq;

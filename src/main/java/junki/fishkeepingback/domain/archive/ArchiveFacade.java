@@ -25,11 +25,12 @@ public class ArchiveFacade {
     private final PostFacade  postFacade;
 
     @Transactional
-    public void delete(String username, String archiveName) {
+    public void delete(UserDetails userDetails, String archiveName) {
         if (archiveName.equals("선택 안함")) {
             throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
         }
-        postFacade.deletePostsByArchiveName(archiveName, username);
+        String username = userDetails.getUsername();
+        postFacade.deletePostsByArchiveName(archiveName, userDetails);
         archiveService.delete(username,archiveName);
     }
 
