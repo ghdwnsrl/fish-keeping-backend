@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  data:
+    redis:
+      host: ${ REDIS_HOST }
+      port: ${ REDIS_PORT }
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${ AWS_S3_ACCESS_KEY }
+      secretKey: ${ AWS_S3_SECRET_KEY }
+    region:
+      static: ${ AWS_S3_REGION }
+    stack:
+      auto: false
+    s3:
+      bucket: ${ AWS_S3_BUCKET }
+
+baseUrl:
+  userThumbnailUrl: ${ USER_THUMBNAIL_URL }

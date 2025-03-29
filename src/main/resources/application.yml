@@ -1,0 +1,52 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${ DB_USERNAME }
+    password: ${ DB_PASSWORD }
+    url: jdbc:mysql://${ DB_URL }:${ DB_PORT }/${ DB_NAME }?serverTimezone=Asia/Seoul
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  data:
+    redis:
+      host: ${ REDIS_HOST }
+      port: ${ REDIS_PORT }
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+cloud:
+  aws:
+    credentials:
+      access-key: ${ AWS_S3_ACCESS_KEY }
+      secretKey: ${ AWS_S3_SECRET_KEY }
+    region:
+      static: ${ AWS_S3_REGION }
+    stack:
+      auto: false
+    s3:
+      bucket: ${ AWS_S3_BUCKET }
+server:
+  servlet:
+    session:
+      timeout: ${ SESSION_TIMEOUT }
+  tomcat:
+    mbeanregistry:
+      enabled: true
+    threads:
+      max: 200
+      min-spare: 20
+
+baseUrl:
+  userThumbnailUrl: ${ USER_THUMBNAIL_URL }
