@@ -45,10 +45,4 @@ public class ImageService {
         s3Uploader.delete(storeName);
     }
 
-    public List<Image> findByPostId(Long postId) {
-        return imageRepository.findByPostId(postId);
-    }
-
-    public void findThumbnailImage(Long postId) {
-    }
 }

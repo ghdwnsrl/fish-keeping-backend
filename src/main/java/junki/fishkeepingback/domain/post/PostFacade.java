@@ -71,7 +71,7 @@ public class PostFacade {
     @Transactional
     public void update(PostReq updatePostDto, Long postId) {
         Post post = postService.update(updatePostDto, postId);
-        imageService.findThumbnailImage(postId);
+//        imageService.findThumbnailImage(postId);
         imageService.save(post, updatePostDto.images());
     }
 
