@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class FishKeepingBackApplication {
 
     public static void main(String[] args) {
+        log.info("GITHUB ACTIONS TEST");
         SpringApplication.run(FishKeepingBackApplication.class, args);
     }
 
