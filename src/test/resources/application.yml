@@ -6,8 +6,8 @@ spring:
     password:
   data:
     redis:
-      host: ${ REDIS_HOST }
-      port: ${ REDIS_PORT }
+      host: localhost
+      port: 6379
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -19,14 +19,14 @@ spring:
 cloud:
   aws:
     credentials:
-      access-key: ${ AWS_S3_ACCESS_KEY }
-      secretKey: ${ AWS_S3_SECRET_KEY }
+      access-key: test
+      secretKey: test
     region:
-      static: ${ AWS_S3_REGION }
+      static: test
     stack:
       auto: false
     s3:
-      bucket: ${ AWS_S3_BUCKET }
+      bucket: test
 
 baseUrl:
-  userThumbnailUrl: ${ USER_THUMBNAIL_URL }
+  userThumbnailUrl: test
