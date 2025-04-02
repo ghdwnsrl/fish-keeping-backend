@@ -50,6 +50,6 @@ jobs:
         port: ${{ secrets.SSH_PORT }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          whoami
+          docker --version
           pwd
           docker compose up -d --pull always
