@@ -25,7 +25,7 @@ public class UserManagerController {
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final HttpSessionSecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final HttpSessionSecurityContextRepository securityContextRepository;
 
     @PostMapping("/api/login")
     public ResponseEntity<Void> login(@RequestBody LoginReq loginReq, HttpServletRequest request, HttpServletResponse response) {
